@@ -1,3 +1,10 @@
+<!-- 
+To update distro run following commands
+npm run build
+git add dist -f
+git commit -m "adding dist"
+git subtree push --prefix dist origin gh_pages 
+-->
 <script setup>
 import { ref } from 'vue' 
 
