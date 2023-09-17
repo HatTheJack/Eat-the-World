@@ -6,30 +6,43 @@ git commit -m "adding dist"
 git subtree push --prefix dist origin gh_pages 
 -->
 <script setup>
-import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount } from 'vue' 
+import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue' 
 // import { numberformat } from swarm-numberformat.min.js
 
 // Define a variable to store the interval ID
 let mainGameLoop;
+
+// Function to calculate the area of something
+function calculateArea(radius) 
+  {
+    return Math.PI * radius * radius;
+  }
+// Function to access to swarm numberformat from inside vue templates
+function formatNumber(number) 
+  {
+    return numberformat.formatShort(number);
+  };
 
 // main loop function
 function mainLoop() {
   gameData.value.hive.forEach(hive => {
     // Calculate the radius increment based on growth.persecond
     // Update the growth amount
-    if (hive.growth.amount < hive.growth.max) {
-      if (hive.resources.Biomass.amount >= hive.growth.cost) {
+    if  ( hive.growth.amount < hive.growth.max && 
+          hive.resources.Biomass.amount >= hive.growth.cost
+
+        ) {
         hive.growth.amount += hive.growth.pertick;
         hive.resources.Biomass.amount -= hive.growth.cost;
-      }
-    }
+    } 
 
-    // You can also ensure that the radius doesn't exceed its max value if needed
+    // heartbeat - everytime the hive heart tickets to 100%
     if (hive.growth.amount >= hive.growth.max) {
-      if (hive.resources.Biomass.amount >= hive.growth.cost) {
+      if (hive.resources.Biomass.amount >= hive.growth.cost && hive.area < hive.maxArea) {
         hive.radius += 1;
+        hive.area = Math.min(hive.maxArea, calculateArea(hive.radius));
         hive.growth.amount = 0;
-      }
+      } 
     }
   });
 }
@@ -49,11 +62,14 @@ const initHive = ([
       id: 0, 
       biome: "Forest",
       radius: 10,
+      areaUsed: 0,
+      area: 314,
+      maxArea: 1024,
       growth: 
         { 
           amount: 0, 
           max: 100, 
-          pertick: 0.5,
+          pertick: 1,
           cost: 1
         }, 
       resources: {
@@ -107,7 +123,7 @@ const totalResourcesInHive = computed(() => {
 gameData.value.resources = totalResourcesInHive;
 
 // function add a new hive to the colony
-function addHive(biome) {
+function addHive(biome, totalArea) {
   const lastHive = gameData.value.hive[gameData.value.hive.length - 1];
   const newId = lastHive.id + 1;
 
@@ -119,23 +135,45 @@ function addHive(biome) {
 
   gameData.value.hive.push(newHive);
 }
-function calculateArea(radius) 
-  {
-    return Math.PI * radius * radius;
-  }
-function formatNumber(number) 
-  {
-    return numberformat.format(number);
-  };
+function calculateHeartPosition(number, maxnumber, width) {
+  return  number*(width / maxnumber) - 7
+}
 </script>
 
 <template>
   <div id="hives">
     <div class="hiveinfo" v-for="item in gameData.hive">
-        <progress class="growth-progress" :value="item.growth.amount" :max="item.growth.max">hello {{ item.growth.max/item.growth.amount }}</progress>
+        <!-- <font-awesome-icon :icon="['fas', 'heart']" beat size="xs" style="color: #732735;" /> -->
+        <div class="heartBeat">
+          <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(item.growth.amount, item.growth.max, 200) + 'px' }"/>
+          <progress class="growth-progress" :value="item.growth.amount" :max="item.growth.max"></progress>
+        </div>
+        
         <span>Hive {{ item.id }}</span>
         <span>Biome: {{ item.biome }}</span>
         <span>Radius: {{ formatNumber(item.radius) }}</span>
+        <span class="hivearea">Area:</span>
+        <table class="hiveAreaTable">
+          <thead>
+            <tr>
+              <th>Used</th>
+              <th></th>
+              <th>Occupied</th>
+              <th></th>
+              <th>Available</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{ formatNumber(item.areaUsed) }}</td>
+              <td class="slash">/ </td>
+              <td>{{ formatNumber(item.area) }}</td>
+              <td class="slash">/</td>
+              <td>{{ formatNumber(item.maxArea) }} sq</td>
+            </tr>
+          </tbody>
+        </table>
         <div v-for="(resource, key) in item.resources">
           <span>{{ key }}</span>
           <span>{{ formatNumber(resource.amount) }}</span>
@@ -160,10 +198,14 @@ function formatNumber(number)
 </template>
 
 <style scoped>
+ .heartBeat {
+    position: relative;
+    width: 200px;
+  }
   /* Style the progress bar container */
   .growth-progress {
     display: block;
-    width: 25%;
+    width: 100%;
     height: 5px;
     margin: 0 0 5px 0;
     border: 1px solid #ccc;
@@ -188,9 +230,30 @@ function formatNumber(number)
       border-radius: 0;
     }
   }
+ 
   span {
     display: inline-block;
     width: 150px;
+  }
+  .hivearea {
+    width: max-content;
+    margin-right: 5px;
+  }
+  .hiveAreaTable {
+    display: inline-block;
+    vertical-align: bottom;
+  }
+  .hiveAreaTable tr {
+    font-size: 0.5rem;
+    text-align: center;
+  }
+  .hiveAreaTable tr td {
+    font-size: 1rem;
+    text-align: center;
+    width: 100px;
+  }
+  .hiveAreaTable .slash {
+    width: 10px;
   }
   .hiveinfo {
     display: block;
@@ -199,6 +262,12 @@ function formatNumber(number)
     margin: 10px 0;
     background: darkslategrey;
     color: wheat
+  }
+  .heartIcon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-top: -4px;
   }
   /* Dev Tools styling */
   #dev {
