@@ -150,6 +150,7 @@ function tabs(content) {
   tabMapping.research = false;
   tabMapping.grow = false;
 
+  // add .active class to whatever a I clicked on
 
   // Set the corresponding variable to true based on the content input
   if (tabMapping.hasOwnProperty(content)) {
@@ -159,11 +160,11 @@ function tabs(content) {
 </script>
 
 <template>
-  <nav>
-    <a @click="tabs('hive')" href="#">Hives</a>
-    <a @click="tabs('mutations')" href="#">Mutations</a>
-    <a @click="tabs('research')" href="#">Research</a>
-    <a @click="tabs('grow')" href="#">Grow</a>
+  <nav id="appTabs">
+    <a @click="tabs('hive')" :class="{ active: tabMapping.hive}" href="#">Hives</a>
+    <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
+    <a @click="tabs('research')" :class="{ active: tabMapping.research}" href="#">Research</a>
+    <a @click="tabs('grow')" :class="{ active: tabMapping.grow}" href="#">Grow</a>
   </nav>
   <div v-show="tabMapping.hive">
     <div id="hives">
@@ -225,6 +226,31 @@ function tabs(content) {
 </template>
 
 <style scoped>
+ #appTabs {
+  width: 100%;
+  height: 35px;
+ }
+ #appTabs a {
+  width: max-content;
+  padding: 5px 20px;
+  margin-right: 10px;
+  border-bottom: 3px solid black;
+  text-decoration: none;
+  color: black;
+ }
+ #appTabs a:visited {
+  width: max-content;
+  padding: 5px 20px;
+  margin-right: 10px;
+  border-bottom: 3px solid black;
+  text-decoration: none;
+  color: black;
+ }
+ #appTabs a.active {
+  border: 3px solid black;
+  border-radius: 3px;
+  border-bottom: 0px solid black;
+ }
  .heartBeat {
     position: relative;
     width: 200px;
