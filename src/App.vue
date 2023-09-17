@@ -18,38 +18,55 @@ function calculateArea(radius)
     return Math.PI * radius * radius;
   }
 // Function to access to swarm numberformat from inside vue templates
-function formatNumber(number) 
-  {
-    return numberformat.formatShort(number);
-  };
-
+function formatNumber(number, unit) {
+  if (unit === "cm") {
+    if (number >= 1000) {
+      number /= 1000;
+      unit = "m";
+    } else if (number >= 1000000) {
+      number /= 1000000;
+      unit = "km";
+    }
+  } else if (unit === "mg") {
+    if (number >= 1000) {
+      number /= 1000;
+      unit = "g";
+    } else if (number >= 1000000) {
+      number /= 1000000;
+      unit = "kg";
+    }
+  }
+  return unit ? numberformat.formatShort(number) + unit : numberformat.formatShort(number);
+}
+const timer = 0;
+const loopInterval = 10;
 // main loop function
+
 function mainLoop() {
+  let biomassAreaMultiplyer = 500;
+  let fibreAreaMultiplyer = 1.5;
+
   gameData.value.hive.forEach(hive => {
     // Calculate the radius increment based on growth.persecond
     // Update the growth amount
-    if  ( hive.growth.amount < hive.growth.max && 
-          hive.resources.Biomass.amount >= hive.growth.cost
-
-        ) {
-        hive.growth.amount += hive.growth.pertick;
-        hive.resources.Biomass.amount -= hive.growth.cost;
+    if  ( hive.growth.amount < hive.growth.max && hive.resources.Biomass.amount >= hive.area/biomassAreaMultiplyer) {
+      hive.growth.amount += hive.growth.pertick;
+      hive.resources.Biomass.amount -= hive.area/biomassAreaMultiplyer;
     } 
-
     // heartbeat - everytime the hive heart tickets to 100%
-    if (hive.growth.amount >= hive.growth.max) {
-      if (hive.resources.Biomass.amount >= hive.growth.cost && hive.area < hive.maxArea) {
-        hive.radius += 1;
-        hive.area = Math.min(hive.maxArea, calculateArea(hive.radius));
-        hive.growth.amount = 0;
-      } 
+    if ( hive.growth.amount >= hive.growth.max && hive.resources.Biomass.amount >= hive.growth.pertick && hive.area < hive.maxArea) {
+        hive.growth.amount = 0; // reset progres bar
+        hive.radius += hive.radiusPerBeat; // increase radius by radius per beat
+        hive.area = Math.min(hive.maxArea, calculateArea(hive.radius)); // calculate new area
+
+
     }
   });
 }
 
 // Use the onMounted hook to start the loop when the component is mounted
 onMounted(() => {
-  mainGameLoop = setInterval(mainLoop, 10); // Execute mainLoop every 1000 milliseconds (1 second)
+  mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
 });
 
 // Use the onBeforeUnmount hook to clean up the interval when the component is about to be destroyed
@@ -57,28 +74,67 @@ onBeforeUnmount(() => {
   clearInterval(mainGameLoop);
 });
 
-const initHive = ([
+const initHiveForest = ([
     { 
       id: 0, 
       biome: "Forest",
       radius: 10,
+      radiusPerBeat: 1,
       areaUsed: 0,
-      area: 314,
-      maxArea: 1024,
+      area: 314.16,
+      maxArea: 10000000,
       growth: 
         { 
           amount: 0, 
           max: 100, 
           pertick: 1,
-          cost: 1
         }, 
       resources: {
         Biomass: 
           {
-            amount: 5000, 
+            amount: 500, 
             perloop: 10
           }, 
         Fibre: 
+          {
+            amount: 0, 
+            perloop: 1
+          }
+      },
+      harvest: {
+        Plants: 
+          {
+            amount: 0, 
+            perloop: 100,
+            max: 100000000000,
+          },
+        Trees: 
+          {
+            amount: 0,
+            perloop: 1
+
+          },
+        Insects: 
+          {
+            amount: 0, 
+            perloop: 1
+          },
+        Animals: 
+          {
+            amount: 0, 
+            perloop: 1
+          },
+        Birds: 
+          {
+            amount: 0, 
+            perloop: 1
+          },
+        Fish: 
+          {
+            amount: 0, 
+            perloop: 1
+          },
+        Humans: 
           {
             amount: 0, 
             perloop: 1
@@ -88,7 +144,7 @@ const initHive = ([
   ]);
 
 const gameData = ref({
-  hive: JSON.parse(JSON.stringify(initHive)),
+  hive: JSON.parse(JSON.stringify(initHiveForest)),
   resources: {
         Biomass: 
           {
@@ -127,8 +183,8 @@ function addHive(biome, totalArea) {
   const lastHive = gameData.value.hive[gameData.value.hive.length - 1];
   const newId = lastHive.id + 1;
 
-  // Create a new hive object by merging properties from initHive and new properties
-  const newHive = JSON.parse(JSON.stringify(initHive[0]));
+  // Create a new hive object by merging properties from initHiveForest and new properties
+  const newHive = JSON.parse(JSON.stringify(initHiveForest[0]));
 
   newHive.id = newId;
   newHive.biome = biome; // You can set the biome as needed
@@ -176,7 +232,7 @@ function tabs(content) {
           
           <span>Hive {{ item.id }}</span>
           <span>Biome: {{ item.biome }}</span>
-          <span>Radius: {{ formatNumber(item.radius) }}</span>
+          <span>Radius: {{ formatNumber(item.radius, "cm") }}</span>
           <span class="hivearea">Area:</span>
           <table class="hiveAreaTable">
             <thead>
@@ -191,17 +247,22 @@ function tabs(content) {
             </thead>
             <tbody>
               <tr>
-                <td>{{ formatNumber(item.areaUsed) }}</td>
+                <td>{{ formatNumber(item.areaUsed, "cm") }}</td>
                 <td class="slash">/ </td>
-                <td>{{ formatNumber(item.area) }}</td>
+                <td>{{ formatNumber(item.area, "cm") }}</td>
                 <td class="slash">/</td>
-                <td>{{ formatNumber(item.maxArea) }} sq</td>
+                <td>{{ formatNumber(item.maxArea, "cm") }} sq</td>
               </tr>
             </tbody>
           </table>
           <div v-for="(resource, key) in item.resources">
             <span>{{ key }}</span>
-            <span>{{ formatNumber(resource.amount) }}</span>
+            <span>{{ formatNumber(resource.amount, "mg") }}</span>
+          </div>
+          <p>-</p>
+          <div class="harvest" v-for="(resource, key) in item.harvest">
+            <span>{{ key }}</span>
+            <span>{{ formatNumber(resource.amount)}}</span>
           </div>
       </div>
     </div>
@@ -209,8 +270,8 @@ function tabs(content) {
     <div>
       <h3>Hive total</h3>
       <ul>
-        <li v-for="(label, value) in gameData.resources" :key="label">
-          {{ label }}: {{ value }}
+        <li v-for="(amount, label) in gameData.resources" :key="label">
+          {{ label }}: {{ formatNumber(amount, "mg") }} 
         </li>
       </ul>
     </div>
@@ -226,6 +287,9 @@ function tabs(content) {
 </template>
 
 <style scoped>
+.harvest {
+  display: inline-block;
+}
  #appTabs {
   width: 100%;
   height: 35px;
@@ -310,7 +374,7 @@ function tabs(content) {
   }
   .hiveinfo {
     display: block;
-    width: max-content;
+    width: 850px;
     padding: 10px;
     margin: 10px 0;
     background: darkslategrey;
