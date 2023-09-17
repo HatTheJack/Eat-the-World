@@ -138,61 +138,88 @@ function addHive(biome, totalArea) {
 function calculateHeartPosition(number, maxnumber, width) {
   return  number*(width / maxnumber) - 7
 }
+const tabMapping = {
+    hive: true,
+    mutations: false,
+    research: false,
+    grow: false,
+  };
+function tabs(content) {
+  tabMapping.hive = false;
+  tabMapping.mutations = false;
+  tabMapping.research = false;
+  tabMapping.grow = false;
+
+
+  // Set the corresponding variable to true based on the content input
+  if (tabMapping.hasOwnProperty(content)) {
+    tabMapping[content] = true;
+  }
+}
 </script>
 
 <template>
-  <div id="hives">
-    <div class="hiveinfo" v-for="item in gameData.hive">
-        <!-- <font-awesome-icon :icon="['fas', 'heart']" beat size="xs" style="color: #732735;" /> -->
-        <div class="heartBeat">
-          <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(item.growth.amount, item.growth.max, 200) + 'px' }"/>
-          <progress class="growth-progress" :value="item.growth.amount" :max="item.growth.max"></progress>
-        </div>
-        
-        <span>Hive {{ item.id }}</span>
-        <span>Biome: {{ item.biome }}</span>
-        <span>Radius: {{ formatNumber(item.radius) }}</span>
-        <span class="hivearea">Area:</span>
-        <table class="hiveAreaTable">
-          <thead>
-            <tr>
-              <th>Used</th>
-              <th></th>
-              <th>Occupied</th>
-              <th></th>
-              <th>Available</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{{ formatNumber(item.areaUsed) }}</td>
-              <td class="slash">/ </td>
-              <td>{{ formatNumber(item.area) }}</td>
-              <td class="slash">/</td>
-              <td>{{ formatNumber(item.maxArea) }} sq</td>
-            </tr>
-          </tbody>
-        </table>
-        <div v-for="(resource, key) in item.resources">
-          <span>{{ key }}</span>
-          <span>{{ formatNumber(resource.amount) }}</span>
-        </div>
+  <nav>
+    <a @click="tabs('hive')" href="#">Hives</a>
+    <a @click="tabs('mutations')" href="#">Mutations</a>
+    <a @click="tabs('research')" href="#">Research</a>
+    <a @click="tabs('grow')" href="#">Grow</a>
+  </nav>
+  <div v-show="tabMapping.hive">
+    <div id="hives">
+      <div class="hiveinfo" v-for="item in gameData.hive">
+          <div class="heartBeat">
+            <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(item.growth.amount, item.growth.max, 200) + 'px' }"/>
+            <progress class="growth-progress" :value="item.growth.amount" :max="item.growth.max"></progress>
+          </div>
+          
+          <span>Hive {{ item.id }}</span>
+          <span>Biome: {{ item.biome }}</span>
+          <span>Radius: {{ formatNumber(item.radius) }}</span>
+          <span class="hivearea">Area:</span>
+          <table class="hiveAreaTable">
+            <thead>
+              <tr>
+                <th>Used</th>
+                <th></th>
+                <th>Occupied</th>
+                <th></th>
+                <th>Available</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ formatNumber(item.areaUsed) }}</td>
+                <td class="slash">/ </td>
+                <td>{{ formatNumber(item.area) }}</td>
+                <td class="slash">/</td>
+                <td>{{ formatNumber(item.maxArea) }} sq</td>
+              </tr>
+            </tbody>
+          </table>
+          <div v-for="(resource, key) in item.resources">
+            <span>{{ key }}</span>
+            <span>{{ formatNumber(resource.amount) }}</span>
+          </div>
+      </div>
     </div>
+    <div>-------------------------------------------------------------</div>
+    <div>
+      <h3>Hive total</h3>
+      <ul>
+        <li v-for="(label, value) in gameData.resources" :key="label">
+          {{ label }}: {{ value }}
+        </li>
+      </ul>
+    </div>
+    <button @click="addHive('Desert')" id="addHive">add hive</button>
   </div>
-  <div>-------------------------------------------------------------</div>
-  <div>
-    <h3>Hive total</h3>
-    <ul>
-      <li v-for="(label, value) in gameData.resources" :key="label">
-        {{ label }}: {{ value }}
-      </li>
-    </ul>
-  </div>
-
-  <button @click="addHive('Desert')" id="addHive">add hive</button>
-
+  <div v-show="tabMapping.mutations">Mutations are here</div>
+  <div v-show="tabMapping.research">Research is here</div>
+  <div v-show="tabMapping.grow">Growing is here</div>
   <div id="dev">
+    <h4>I am some debug info</h4>
     <pre>{{ JSON.stringify(gameData, null, 2) }}</pre>
   </div>
 </template>
@@ -273,6 +300,10 @@ function calculateHeartPosition(number, maxnumber, width) {
   #dev {
     position: absolute;
     width: 250px;
+    height: 300px;
     background: lightgrey;
+    bottom: 0;
+    right: 0;
+    overflow-y: scroll;
   }
 </style>
