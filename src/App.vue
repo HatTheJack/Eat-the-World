@@ -6,38 +6,14 @@ git commit -m "adding dist"
 git subtree push --prefix dist origin gh_pages 
 -->
 <script setup>
-import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue' 
-// import { numberformat } from swarm-numberformat.min.js
+import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { initHiveForest } from './assets/hives.js'
+import { calculateArea, formatNumber, calculateHeartPosition } from './assets/functions.js';
+
 
 // Define a variable to store the interval ID
 let mainGameLoop;
 
-// Function to calculate the area of something
-function calculateArea(radius) 
-  {
-    return Math.PI * radius * radius;
-  }
-// Function to access to swarm numberformat from inside vue templates
-function formatNumber(number, unit) {
-  if (unit === "cm") {
-    if (number >= 1000) {
-      number /= 1000;
-      unit = "m";
-    } else if (number >= 1000000) {
-      number /= 1000000;
-      unit = "km";
-    }
-  } else if (unit === "mg") {
-    if (number >= 1000) {
-      number /= 1000;
-      unit = "g";
-    } else if (number >= 1000000) {
-      number /= 1000000;
-      unit = "kg";
-    }
-  }
-  return unit ? numberformat.formatShort(number) + unit : numberformat.formatShort(number);
-}
 const timer = 0;
 const loopInterval = 10;
 // main loop function
@@ -64,84 +40,10 @@ function mainLoop() {
   });
 }
 
-Use the onMounted hook to start the loop when the component is mounted
+// Use the onMounted hook to start the loop when the component is mounted
 onMounted(() => {
   mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
 });
-
-Use the onBeforeUnmount hook to clean up the interval when the component is about to be destroyed
-onBeforeUnmount(() => {
-  clearInterval(mainGameLoop);
-});
-
-const initHiveForest = ([
-    { 
-      id: 0, 
-      biome: "Forest",
-      radius: 10,
-      radiusPerBeat: 1,
-      areaUsed: 0,
-      area: 314.16,
-      maxArea: 10000000,
-      growth: 
-        { 
-          amount: 0, 
-          max: 100, 
-          pertick: 1,
-        }, 
-      resources: {
-        Biomass: 
-          {
-            amount: 500, 
-            perloop: 10
-          }, 
-        Fibre: 
-          {
-            amount: 0, 
-            perloop: 1
-          }
-      },
-      harvest: {
-        Plants: 
-          {
-            amount: 0, 
-            perloop: 100,
-            max: 100000000000,
-          },
-        Trees: 
-          {
-            amount: 0,
-            perloop: 1
-
-          },
-        Insects: 
-          {
-            amount: 0, 
-            perloop: 1
-          },
-        Animals: 
-          {
-            amount: 0, 
-            perloop: 1
-          },
-        Birds: 
-          {
-            amount: 0, 
-            perloop: 1
-          },
-        Fish: 
-          {
-            amount: 0, 
-            perloop: 1
-          },
-        Humans: 
-          {
-            amount: 0, 
-            perloop: 1
-          }
-      }
-    }, 
-  ]);
 
 const gameData = ref({
   hive: JSON.parse(JSON.stringify(initHiveForest)),
@@ -191,9 +93,6 @@ function addHive(biome, totalArea) {
 
   gameData.value.hive.push(newHive);
 }
-function calculateHeartPosition(number, maxnumber, width) {
-  return  number*(width / maxnumber) - 7
-}
 const tabMapping = ref({
     hive: true,
     mutations: false,
@@ -221,17 +120,15 @@ function tabs(content) {
     <a @click="tabs('research')" :class="{ active: tabMapping.research}" href="#">Research</a>
     <a @click="tabs('grow')" :class="{ active: tabMapping.grow}" href="#">Grow</a>
   </nav>
-  <p>{{ tabMapping.hive }}</p>
   <div v-show="tabMapping.hive">
-    Hives are here
+    <div id="resourceoverview"></div>
     <div id="hives">
       <div class="hiveinfo" v-for="item in gameData.hive">
           <div class="heartBeat">
             <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(item.growth.amount, item.growth.max, 200) + 'px' }"/>
             <progress class="growth-progress" :value="item.growth.amount" :max="item.growth.max"></progress>
-          </div>
-          
-          <span>Hive {{ item.id }}</span>
+          </div>         
+          <!-- <span>Hive {{ item.id }}</span> -->
           <span>Biome: {{ item.biome }}</span>
           <span>Radius: {{ formatNumber(item.radius, "cm") }}</span>
           <span class="hivearea">Area:</span>
