@@ -46,6 +46,8 @@ function mainLoop() {
   let biomassAreaMultiplyer = 500;
   let fibreAreaMultiplyer = 1.5;
 
+  
+
   gameData.value.hive.forEach(hive => {
     // Calculate the radius increment based on growth.persecond
     // Update the growth amount
@@ -58,21 +60,19 @@ function mainLoop() {
         hive.growth.amount = 0; // reset progres bar
         hive.radius += hive.radiusPerBeat; // increase radius by radius per beat
         hive.area = Math.min(hive.maxArea, calculateArea(hive.radius)); // calculate new area
-
-
-    }
+    } 
   });
 }
 
 // Use the onMounted hook to start the loop when the component is mounted
-onMounted(() => {
-  mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
-});
+// onMounted(() => {
+//   mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
+// });
 
 // Use the onBeforeUnmount hook to clean up the interval when the component is about to be destroyed
-onBeforeUnmount(() => {
-  clearInterval(mainGameLoop);
-});
+// onBeforeUnmount(() => {
+//   clearInterval(mainGameLoop);
+// });
 
 const initHiveForest = ([
     { 
@@ -194,23 +194,37 @@ function addHive(biome, totalArea) {
 function calculateHeartPosition(number, maxnumber, width) {
   return  number*(width / maxnumber) - 7
 }
-const tabMapping = {
+const tabMapping = ref({
     hive: true,
     mutations: false,
     research: false,
     grow: false,
-  };
-function tabs(content) {
-  tabMapping.hive = false;
-  tabMapping.mutations = false;
-  tabMapping.research = false;
-  tabMapping.grow = false;
+  });
 
-  // add .active class to whatever a I clicked on
+// function tabs(content) {
+//   tabMapping.hive = false;
+//   tabMapping.mutations = false;
+//   tabMapping.research = false;
+//   tabMapping.grow = false;
+//   console.log("I am running: "+content)
+
+//   // tabMapping.grow = true;
+//   // add .active class to whatever a I clicked on
+
+//   // Set the corresponding variable to true based on the content input
+//   if (tabMapping.hasOwnProperty(content)) {
+//     tabMapping[content] = true;
+//   }
+// }
+function tabs(content) {
+  // Set all properties to false
+  for (const key in tabMapping.value) {
+    tabMapping.value[key] = false;
+  }
 
   // Set the corresponding variable to true based on the content input
-  if (tabMapping.hasOwnProperty(content)) {
-    tabMapping[content] = true;
+  if (tabMapping.value.hasOwnProperty(content)) {
+    tabMapping.value[content] = true;
   }
 }
 </script>
@@ -222,7 +236,9 @@ function tabs(content) {
     <a @click="tabs('research')" :class="{ active: tabMapping.research}" href="#">Research</a>
     <a @click="tabs('grow')" :class="{ active: tabMapping.grow}" href="#">Grow</a>
   </nav>
+  <p>{{ tabMapping.hive }}</p>
   <div v-show="tabMapping.hive">
+    Hives are here
     <div id="hives">
       <div class="hiveinfo" v-for="item in gameData.hive">
           <div class="heartBeat">
@@ -276,13 +292,16 @@ function tabs(content) {
       </ul>
     </div>
     <button @click="addHive('Desert')" id="addHive">add hive</button>
+  
   </div>
   <div v-show="tabMapping.mutations">Mutations are here</div>
   <div v-show="tabMapping.research">Research is here</div>
   <div v-show="tabMapping.grow">Growing is here</div>
   <div id="dev">
     <h4>I am some debug info</h4>
-    <pre>{{ JSON.stringify(gameData, null, 2) }}</pre>
+    <pre>{{ gameData }}</pre>
+    <!-- <pre>{{ JSON.stringify(tabMapping, null, 2) }}</pre>
+    <pre>{{ JSON.stringify(tabMapping, null, 2) }}</pre> -->
   </div>
 </template>
 
