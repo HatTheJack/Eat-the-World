@@ -116,73 +116,81 @@ function tabs(content) {
 
 <template>
   <child-component />
-  <nav id="appTabs">
-    <a @click="tabs('hive')" :class="{ active: tabMapping.hive}" href="#">Hives</a>
-    <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
-    <a @click="tabs('research')" :class="{ active: tabMapping.research}" href="#">Research</a>
-    <a @click="tabs('grow')" :class="{ active: tabMapping.grow}" href="#">Grow</a>
-  </nav>
-  <div v-show="tabMapping.hive">
-    <div id="resourceoverview"></div>
-    <div id="hives">
-      <div class="hiveinfo" v-for="item in gameData.hive">
-          <div class="heartBeat">
-            <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(item.growth.amount, item.growth.max, 200) + 'px' }"/>
-            <progress class="growth-progress" :value="item.growth.amount" :max="item.growth.max"></progress>
-          </div>         
-          <!-- <span>Hive {{ item.id }}</span> -->
-          <span>Biome: {{ item.biome }}</span>
-          <span>Radius: {{ formatNumber(item.radius, "cm") }}</span>
-          <span class="hivearea">Area:</span>
-          <table style="margin-bottom: -3.5px" class="hiveAreaTable">
-            <thead>
-              <tr>
-                <th>Used</th>
-                <th></th>
-                <th>Occupied</th>
-                <th></th>
-                <th>Available</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{{ formatNumber(item.areaUsed, "cm") }}</td>
-                <td class="slash">/ </td>
-                <td>{{ formatNumber(item.area, "cm") }}</td>
-                <td class="slash">/</td>
-                <td>{{ formatNumber(item.maxArea, "cm") }} sq</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="hiveResources">
-            <div v-for="(resource, key) in item.resources">
-              <span>{{ key }}</span>
-              <span>{{ formatNumber(resource.amount, "mg") }}</span>
-            </div>
+    <div class="flexContainer">
+      <div id="hiveView" class="flexChild40 flexChild">
+        <div id="resourceoverview"></div>
+        <div id="hives">
+          <div class="hiveinfo" v-for="item in gameData.hive">
+              <div class="heartBeat">
+                <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(item.growth.amount, item.growth.max, 200) + 'px' }"/>
+                <progress class="growth-progress" :value="item.growth.amount" :max="item.growth.max"></progress>
+              </div>         
+              <!-- <span>Hive {{ item.id }}</span> -->
+              <span>Biome: {{ item.biome }}</span>
+              <span>Radius: {{ formatNumber(item.radius, "cm") }}</span>
+              <span class="hivearea">Area:</span>
+              <table style="margin-bottom: -3.5px" class="hiveAreaTable">
+                <thead>
+                  <tr>
+                    <th>Used</th>
+                    <th></th>
+                    <th>Occupied</th>
+                    <th></th>
+                    <th>Available</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ formatNumber(item.areaUsed, "cm") }}</td>
+                    <td class="slash">/ </td>
+                    <td>{{ formatNumber(item.area, "cm") }}</td>
+                    <td class="slash">/</td>
+                    <td>{{ formatNumber(item.maxArea, "cm") }} sq</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="hiveResources">
+                <div v-for="(resource, key) in item.resources">
+                  <span>{{ key }}</span>
+                  <span>{{ formatNumber(resource.amount, "mg") }}</span>
+                </div>
+              </div>
+              <p>-</p>
+              <div class="harvest" v-for="(resource, key) in item.harvest">
+                <span>{{ key }}</span>
+                <span>{{ formatNumber(resource.amount)}}</span>
+              </div>
           </div>
-          <p>-</p>
-          <div class="harvest" v-for="(resource, key) in item.harvest">
-            <span>{{ key }}</span>
-            <span>{{ formatNumber(resource.amount)}}</span>
-          </div>
+        </div>
+        <div>
+          <h3>Hive total</h3>
+          <ul>
+            <li v-for="(amount, label) in gameData.resources" :key="label">
+              {{ label }}: {{ formatNumber(amount, "mg") }} 
+            </li>
+          </ul>
+        </div>
       </div>
+      <aside id="rightHandMenu" class="flexChild60 flexChild">
+      <nav id="appTabs">
+        <!-- <a @click="tabs('hive')" :class="{ active: tabMapping.hive}" href="#">Hives</a> -->
+        <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
+        <a @click="tabs('research')" :class="{ active: tabMapping.research}" href="#">Research</a>
+        <a @click="tabs('grow')" :class="{ active: tabMapping.grow}" href="#">Grow</a>
+      </nav>
+        <div v-show="tabMapping.mutations">
+          <h3>Mutations are here</h3>
+        </div>
+        <div v-show="tabMapping.research">
+          <h3>Research is here</h3>
+        </div>
+        <div v-show="tabMapping.grow">
+          <h3>Growing is here</h3>
+        <button @click="addHive('Desert')" id="addHive">add hive</button>
+        </div>
+      </aside>
     </div>
-    <div>-------------------------------------------------------------</div>
-    <div>
-      <h3>Hive total</h3>
-      <ul>
-        <li v-for="(amount, label) in gameData.resources" :key="label">
-          {{ label }}: {{ formatNumber(amount, "mg") }} 
-        </li>
-      </ul>
-    </div>
-    <button @click="addHive('Desert')" id="addHive">add hive</button>
-  
-  </div>
-  <div v-show="tabMapping.mutations">Mutations are here</div>
-  <div v-show="tabMapping.research">Research is here</div>
-  <div v-show="tabMapping.grow">Growing is here</div>
   <div id="dev">
     <h4>I am some debug info</h4>
     <pre>{{ gameData }}</pre>
@@ -192,38 +200,54 @@ function tabs(content) {
 </template>
 
 <style scoped>
-.harvest {
-  display: inline-block;
-}
- #appTabs {
-  width: 100%;
-  height: 35px;
- }
- #appTabs a {
-  width: max-content;
-  padding: 5px 20px;
-  margin-right: 10px;
-  border-bottom: 3px solid black;
-  text-decoration: none;
-  color: black;
- }
- #appTabs a:visited {
-  width: max-content;
-  padding: 5px 20px;
-  margin-right: 10px;
-  border-bottom: 3px solid black;
-  text-decoration: none;
-  color: black;
- }
- #appTabs a.active {
-  border: 3px solid black;
-  border-radius: 3px;
-  border-bottom: 0px solid black;
- }
- .heartBeat {
-    position: relative;
-    width: 200px;
+  .flexContainer {
+      display: flex;
   }
+
+
+  .flexChild40 {
+    overflow: hidden;
+    flex: 40;
+  }  
+  .flexChild60 {
+    overflow: hidden;
+    flex:60;
+  }  
+  .flexChild:first-child {
+    margin-right: 10px;
+  }
+  .harvest {
+    display: inline-block;
+  }
+  #appTabs {
+    width: 100%;
+    height: 35px;
+  }
+  #appTabs a {
+    width: max-content;
+    padding: 5px 20px;
+    margin-right: 10px;
+    border-bottom: 3px solid black;
+    text-decoration: none;
+    color: black;
+  }
+  #appTabs a:visited {
+    width: max-content;
+    padding: 5px 20px;
+    margin-right: 10px;
+    border-bottom: 3px solid black;
+    text-decoration: none;
+    color: black;
+  }
+  #appTabs a.active {
+    border: 3px solid black;
+    border-radius: 3px;
+    border-bottom: 0px solid black;
+  }
+  .heartBeat {
+      position: relative;
+      width: 200px;
+    }
   /* Style the progress bar container */
   .growth-progress {
     display: block;
@@ -287,11 +311,27 @@ function tabs(content) {
   }
   .hiveinfo {
     display: block;
-    width: 700px;
+    box-sizing: border-box;
+    width: 100%;
     padding: 10px;
-    margin: 10px 0;
-    background: darkslategrey;
+    margin: 0 0 10px 0;
+    background:   darkslategrey;
     color: wheat
+  }
+  #hives {
+    width: 100%;
+  }
+  #hiveView {
+    padding: 10px;
+    height: 100vh;
+    background: grey;
+    overflow-y: scroll;
+  }
+  #rightHandMenu {
+    padding: 10px;
+    height: 100vh;
+    background: grey;
+    overflow-y: scroll;
   }
   .heartIcon {
     position: absolute;
