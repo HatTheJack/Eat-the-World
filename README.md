@@ -1,5 +1,5 @@
 # Eat the World
 
-An Idle game about being very very hungry
+An Idle game about being a very very hungry ...thing
 
 v0.0.00000000000000000000000000000000000000000000000000000000000000000001

@@ -9,6 +9,7 @@ git subtree push --prefix dist origin gh_pages
 import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { initHiveForest } from './assets/hives.js'
 import { calculateArea, formatNumber, calculateHeartPosition } from './assets/functions.js';
+import ChildComponent from './components/popups.vue';
 
 
 // Define a variable to store the interval ID
@@ -114,6 +115,7 @@ function tabs(content) {
 </script>
 
 <template>
+  <child-component />
   <nav id="appTabs">
     <a @click="tabs('hive')" :class="{ active: tabMapping.hive}" href="#">Hives</a>
     <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
@@ -132,7 +134,7 @@ function tabs(content) {
           <span>Biome: {{ item.biome }}</span>
           <span>Radius: {{ formatNumber(item.radius, "cm") }}</span>
           <span class="hivearea">Area:</span>
-          <table class="hiveAreaTable">
+          <table style="margin-bottom: -3.5px" class="hiveAreaTable">
             <thead>
               <tr>
                 <th>Used</th>
@@ -153,9 +155,11 @@ function tabs(content) {
               </tr>
             </tbody>
           </table>
-          <div v-for="(resource, key) in item.resources">
-            <span>{{ key }}</span>
-            <span>{{ formatNumber(resource.amount, "mg") }}</span>
+          <div class="hiveResources">
+            <div v-for="(resource, key) in item.resources">
+              <span>{{ key }}</span>
+              <span>{{ formatNumber(resource.amount, "mg") }}</span>
+            </div>
           </div>
           <p>-</p>
           <div class="harvest" v-for="(resource, key) in item.harvest">
@@ -249,6 +253,14 @@ function tabs(content) {
     }
   }
  
+  .hivearea span {
+    display: inline-block;
+    width: 150px;
+  }
+  .harvest span, .hiveResources span  {
+    display: inline-block;
+    width: 75px;
+  }
   span {
     display: inline-block;
     width: 150px;
@@ -275,7 +287,7 @@ function tabs(content) {
   }
   .hiveinfo {
     display: block;
-    width: 850px;
+    width: 700px;
     padding: 10px;
     margin: 10px 0;
     background: darkslategrey;
