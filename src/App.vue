@@ -64,15 +64,15 @@ function mainLoop() {
   });
 }
 
-// Use the onMounted hook to start the loop when the component is mounted
-// onMounted(() => {
-//   mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
-// });
+Use the onMounted hook to start the loop when the component is mounted
+onMounted(() => {
+  mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
+});
 
-// Use the onBeforeUnmount hook to clean up the interval when the component is about to be destroyed
-// onBeforeUnmount(() => {
-//   clearInterval(mainGameLoop);
-// });
+Use the onBeforeUnmount hook to clean up the interval when the component is about to be destroyed
+onBeforeUnmount(() => {
+  clearInterval(mainGameLoop);
+});
 
 const initHiveForest = ([
     { 
@@ -201,21 +201,6 @@ const tabMapping = ref({
     grow: false,
   });
 
-// function tabs(content) {
-//   tabMapping.hive = false;
-//   tabMapping.mutations = false;
-//   tabMapping.research = false;
-//   tabMapping.grow = false;
-//   console.log("I am running: "+content)
-
-//   // tabMapping.grow = true;
-//   // add .active class to whatever a I clicked on
-
-//   // Set the corresponding variable to true based on the content input
-//   if (tabMapping.hasOwnProperty(content)) {
-//     tabMapping[content] = true;
-//   }
-// }
 function tabs(content) {
   // Set all properties to false
   for (const key in tabMapping.value) {
