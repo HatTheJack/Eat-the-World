@@ -17,49 +17,96 @@ let mainGameLoop;
 
 const timer = 0;
 const loopInterval = 10;
-// main loop function
 
+function heartBeat() {
+  const hasEnoughBiomass = gameData.value.hive.some(hive => {
+    return hive.resources.Biomass.amount >= gameData.value.heart.pertick;
+  });
+
+  if (hasEnoughBiomass) {
+    if (gameData.value.heart.amount < gameData.value.heart.max) {
+      // Check if heart amount is less than heart max
+      gameData.value.heart.amount += gameData.value.heart.pertick;
+
+      // Subtract pertick from each hive if it has enough biomass
+      gameData.value.hive.forEach(hive => {
+        if (hive.resources.Biomass.amount >= gameData.value.heart.pertick) {
+          hive.resources.Biomass.amount -= gameData.value.heart.pertick;
+        } else {
+          // do bad things to the hive
+          hive.heart.healthMultiplyer -= 0.001;
+        }
+      });
+    } else if (gameData.value.heart.amount == gameData.value.heart.max) {
+      gameData.value.heart.amount = 0;
+    }
+  } else {
+    // Handle the case when no hive has enough biomass
+    // You can add your own logic here if needed
+  }
+}
+
+// main loop function
 function mainLoop() {
   let biomassAreaMultiplyer = 500;
   let fibreAreaMultiplyer = 1.5;
-
+  heartBeat();
   
 
-  gameData.value.hive.forEach(hive => {
-    // Calculate the radius increment based on growth.persecond
-    // Update the growth amount
-    if  ( hive.growth.amount < hive.growth.max && hive.resources.Biomass.amount >= hive.area/biomassAreaMultiplyer) {
-      hive.growth.amount += hive.growth.pertick;
-      hive.resources.Biomass.amount -= hive.area/biomassAreaMultiplyer;
-    } 
-    // heartbeat - everytime the hive heart tickets to 100%
-    if ( hive.growth.amount >= hive.growth.max && hive.resources.Biomass.amount >= hive.growth.pertick && hive.area < hive.maxArea) {
-        hive.growth.amount = 0; // reset progres bar
-        hive.radius += hive.radiusPerBeat; // increase radius by radius per beat
-        hive.area = Math.min(hive.maxArea, calculateArea(hive.radius)); // calculate new area
-    } 
-  });
+  // gameData.value.hive.forEach(hive => {
+  //   // Calculate the radius increment based on growth.persecond
+  //   // Update the growth amount
+  //   if  ( hive.growth.amount < hive.growth.max && hive.resources.Biomass.amount >= hive.area/biomassAreaMultiplyer) {
+  //     hive.growth.amount += hive.growth.pertick;
+  //     hive.resources.Biomass.amount -= hive.area/biomassAreaMultiplyer;
+  //     heartBeat();
+  //   } 
+  //   // heartbeat - everytime the hive heart tickets to 100%
+  //   if ( hive.growth.amount >= hive.growth.max && hive.resources.Biomass.amount >= hive.growth.pertick && hive.area < hive.maxArea) {
+  //       hive.growth.amount = 0; // reset progres bar
+  //       hive.radius += hive.radiusPerBeat; // increase radius by radius per beat
+  //       hive.area = Math.min(hive.maxArea, calculateArea(hive.radius)); // calculate new area
+  //   } 
+  // });
 }
+// Create a ref to store the width of the element
+const heartbeatWidth = ref(0);
 
+// Create a ref to the DOM element you want to measure
+const heartbeatElement = ref(null);
+
+// Use the onMounted hook to measure the element's width after it's mounted
 // Use the onMounted hook to start the loop when the component is mounted
 onMounted(() => {
   mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
+  if (heartbeatElement.value) {
+    heartbeatWidth.value = heartbeatElement.value.offsetWidth;
+  }
 });
+
+      
 
 const gameData = ref({
   hive: JSON.parse(JSON.stringify(initHiveForest)),
+  heart: 
+    { 
+      amount: 0, 
+      max: 100, 
+      pertick: 1,
+      multiplyer: 1,
+    },
   resources: {
-        Biomass: 
-          {
-            amount: 120, 
-            perloop: 10
-          }, 
-        Fibre: 
-          {
-            amount: 0, 
-            perloop: 1
-          }
+    Biomass: 
+      {
+        amount: 120, 
+        perloop: 10
+      }, 
+    Fibre: 
+      {
+        amount: 0, 
+        perloop: 1
       }
+  }
 });
 
 const totalResourcesInHive = computed(() => {
@@ -112,19 +159,21 @@ function tabs(content) {
     tabMapping.value[content] = true;
   }
 }
+console.log(gameData)
 </script>
 
 <template>
-  <child-component />
+  <!-- <child-component /> -->
     <div class="flexContainer">
       <div id="hiveView" class="flexChild40 flexChild">
+        <div class="heartBeat" ref="heartbeatElement">
+          <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(gameData.heart.amount, gameData.heart.max, heartbeatWidth) + 'px' }"/>
+          <progress class="growth-progress" :value="gameData.heart.amount" :max="gameData.heart.max"></progress>
+        </div>   
         <div id="resourceoverview"></div>
         <div id="hives">
           <div class="hiveinfo" v-for="item in gameData.hive">
-              <div class="heartBeat">
-                <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(item.growth.amount, item.growth.max, 200) + 'px' }"/>
-                <progress class="growth-progress" :value="item.growth.amount" :max="item.growth.max"></progress>
-              </div>         
+      
               <!-- <span>Hive {{ item.id }}</span> -->
               <span>Biome: {{ item.biome }}</span>
               <span>Radius: {{ formatNumber(item.radius, "cm") }}</span>
@@ -246,7 +295,7 @@ function tabs(content) {
   }
   .heartBeat {
       position: relative;
-      width: 200px;
+      width: 100%;
     }
   /* Style the progress bar container */
   .growth-progress {
