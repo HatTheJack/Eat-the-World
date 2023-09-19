@@ -9,7 +9,8 @@ export const initHiveForest = ([
       maxArea: 10000000,
       heart: 
         { 
-          healthMultiplyer: 0, 
+          healthMultiplyer: 1,
+          dyingState: true,
         }, 
       resources: {
         Biomass: 

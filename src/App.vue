@@ -11,47 +11,67 @@ import { initHiveForest } from './assets/hives.js'
 import { calculateArea, formatNumber, calculateHeartPosition } from './assets/functions.js';
 import ChildComponent from './components/popups.vue';
 
-
+//init some variables
 // Define a variable to store the interval ID
+let timer = 0;
+const loopInterval = 10;
 let mainGameLoop;
 
-const timer = 0;
-const loopInterval = 10;
 
 function heartBeat() {
+  // checks if there is enough biomass each tick
   const hasEnoughBiomass = gameData.value.hive.some(hive => {
     return hive.resources.Biomass.amount >= gameData.value.heart.pertick;
   });
 
+  // things that happen if there is enough biomass
   if (hasEnoughBiomass) {
-    if (gameData.value.heart.amount < gameData.value.heart.max) {
-      // Check if heart amount is less than heart max
-      gameData.value.heart.amount += gameData.value.heart.pertick;
+    
+    if (gameData.value.heart.amount < gameData.value.heart.max) { // Check if heart amount is less than heart max
+      gameData.value.heart.amount += gameData.value.heart.pertick; // Subtract pertick from each hive if it has enough biomass
 
-      // Subtract pertick from each hive if it has enough biomass
+      // Checke each hive if they have enough biomass then tick down.
       gameData.value.hive.forEach(hive => {
         if (hive.resources.Biomass.amount >= gameData.value.heart.pertick) {
+          // what happens if there is enough
           hive.resources.Biomass.amount -= gameData.value.heart.pertick;
+          hive.heart.dyingState = false
         } else {
-          // do bad things to the hive
-          hive.heart.healthMultiplyer -= 0.001;
+          // what happens if there isn't
+          hive.heart.dyingState = true;
         }
       });
-    } else if (gameData.value.heart.amount == gameData.value.heart.max) {
-      gameData.value.heart.amount = 0;
-    }
+      // checks if heart is 100 then rest if it is.
+      } else if (gameData.value.heart.amount == gameData.value.heart.max) {
+        gameData.value.heart.amount = 0;
+      }
+        
   } else {
     // Handle the case when no hive has enough biomass
     // You can add your own logic here if needed
+    gameData.value.heart.dyingState = true;
   }
 }
-
+function noHeartBeat() {
+  hive.heart.healthMultiplyer -= 0.001;
+}
 // main loop function
 function mainLoop() {
-  let biomassAreaMultiplyer = 500;
-  let fibreAreaMultiplyer = 1.5;
+  // let biomassAreaMultiplyer = 500;
+  // let fibreAreaMultiplyer = 1.5;
+  timer++;
   heartBeat();
-  
+
+  if (timer = 100) {
+    timer = 0;// reset counter
+    if (gameData.value.heart.dyingState == true) {
+      gameData.value.hive.forEach(hive => {
+        hive.heart.healthMultiplyer = Math.max(hive.heart.healthMultiplyer - 0.001, -1)
+      });  
+    }
+    // do stuff every second
+  }
+
 
   // gameData.value.hive.forEach(hive => {
   //   // Calculate the radius increment based on growth.persecond
@@ -78,10 +98,10 @@ const heartbeatElement = ref(null);
 // Use the onMounted hook to measure the element's width after it's mounted
 // Use the onMounted hook to start the loop when the component is mounted
 onMounted(() => {
+  // if (heartbeatElement.value) {
+  //   heartbeatWidth.value = heartbeatElement.value.offsetWidth;
+  // }
   mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
-  if (heartbeatElement.value) {
-    heartbeatWidth.value = heartbeatElement.value.offsetWidth;
-  }
 });
 
       
@@ -94,6 +114,7 @@ const gameData = ref({
       max: 100, 
       pertick: 1,
       multiplyer: 1,
+      dyingState: false,
     },
   resources: {
     Biomass: 
@@ -159,7 +180,6 @@ function tabs(content) {
     tabMapping.value[content] = true;
   }
 }
-console.log(gameData)
 </script>
 
 <template>
@@ -223,11 +243,14 @@ console.log(gameData)
       </div>
       <aside id="rightHandMenu" class="flexChild60 flexChild">
       <nav id="appTabs">
-        <!-- <a @click="tabs('hive')" :class="{ active: tabMapping.hive}" href="#">Hives</a> -->
+        <a @click="tabs('hives')" :class="{ active: tabMapping.hive}" href="#">Hives</a>
         <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
         <a @click="tabs('research')" :class="{ active: tabMapping.research}" href="#">Research</a>
         <a @click="tabs('grow')" :class="{ active: tabMapping.grow}" href="#">Grow</a>
       </nav>
+        <div v-show="tabMapping.hives">
+          <h3>Mutations are here</h3>
+        </div>
         <div v-show="tabMapping.mutations">
           <h3>Mutations are here</h3>
         </div>
@@ -252,8 +275,6 @@ console.log(gameData)
   .flexContainer {
       display: flex;
   }
-
-
   .flexChild40 {
     overflow: hidden;
     flex: 40;
@@ -371,12 +392,14 @@ console.log(gameData)
     width: 100%;
   }
   #hiveView {
+    box-sizing: border-box;
     padding: 10px;
     height: 100vh;
     background: grey;
     overflow-y: scroll;
   }
   #rightHandMenu {
+    box-sizing: border-box;
     padding: 10px;
     height: 100vh;
     background: grey;
