@@ -16,16 +16,21 @@ export const initHiveForest = ([
       resources: {
         Biomass: 
           {
-            amount: 500000000000, 
+            amount: 500, 
             perloop: 10
           }, 
         Fibre: 
           {
             amount: 0, 
             perloop: 1
+          },
+        Glucose:
+          {
+            amount: 0,
+            perloop: 0
           }
       },
-      harvest: {
+      food: {
         Plants: 
           {
             amount: 314, 

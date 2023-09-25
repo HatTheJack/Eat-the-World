@@ -8,15 +8,32 @@ git subtree push --prefix dist origin gh_pages
 <script setup>
 import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { initHiveForest } from './assets/hives.js'
-import { harvestMultiplyers } from "./assets/resources.js";
+import { foodValues } from "./assets/resources.js";
 import { calculateArea, formatNumber, calculateHeartPosition } from './assets/functions.js';
 import ChildComponent from './components/popups.vue';
 
 
 //init some variables
 // Define a variable to store the interval ID
-const loopInterval = 100;
+const loopInterval = 10;
 let mainGameLoop;
+
+
+//function to devourer food from current hive and provide resources based on foodValues
+function devourerFood(hive, food) {
+  //const selectedHive = gameData.hive.find((hive) => hive.id === hiveId);
+  // check if there is enough food to devourer
+  if (hive.food[food].amount >= 100) {
+    // remove 100 food
+    hive.food[food].amount -= 100;
+    // add 100 glucose
+    hive.resources.Glucose.amount += 100 * foodValues.food[food].glucose;
+    // add 100 fibre
+    hive.resources.Fibre.amount += 100 * foodValues.food[food].fibre;
+    // add 100 biomass
+    hive.resources.Biomass.amount += 100 * foodValues.food[food].biomass;
+  }
+}
 
 
 function heartBeat() {
@@ -29,9 +46,9 @@ function heartBeat() {
   if (hasEnoughBiomass) {
     
     if (gameData.value.heart.amount < gameData.value.heart.max) { // Check if heart amount is less than heart max
-      // gameData.value.heart.amount += gameData.value.heart.pertick; // Subtract pertick from each hive if it has enough biomass
+      gameData.value.heart.amount += gameData.value.heart.pertick; // Subtract pertick from each hive if it has enough biomass
 
-      // Checke each hive if they have enough biomass then tick down.
+      // Check each hive if they have enough biomass then tick down.
       gameData.value.hive.forEach(hive => {
         if (hive.resources.Biomass.amount >= gameData.value.heart.pertick) {
           // what happens if there is enough
@@ -43,9 +60,10 @@ function heartBeat() {
           hive.heart.dyingState = true;
         }
       });
-      // checks if heart is 100 then rest if it is.
+      // checks if heart is 100 then reset if it is.
     } else if (gameData.value.heart.amount == gameData.value.heart.max) {
       gameData.value.heart.amount = 0;
+
 
       for (const hive of gameData.value.hive) {
         hive.radius += hive.radiusPerBeat;
@@ -55,13 +73,15 @@ function heartBeat() {
         hive.area = Math.min(hive.maxArea, calculateArea(hive.radius));
         let difference = hive.area - hive.previousArea;
 
-        for (const resourceKey in hive.harvest) {
+        for (const resourceKey in hive.food) {
           // check if current resource is Plants
           if (resourceKey == "Plants") {
 
           }
           // increase each harvest amount by the difference in area
-          hive.harvest[resourceKey].amount += Math.round((difference * harvestMultiplyers.harvest[resourceKey])*harvestMultiplyers.Overall);
+          hive.food[resourceKey].amount += Math.round((difference * foodValues.food[resourceKey].multiplyer)*foodValues.Overall);
+          // increase kill one human each time
+
         }
       }
       // adds to each harvest max based on area using forEach vue
@@ -100,10 +120,10 @@ function mainLoop() {
     tickHour();
     // add to each harvest resource based on harvest multiplyer and current area
     gameData.value.hive.forEach(hive => {
-      for (const resourceKey in hive.harvest) {
+      for (const resourceKey in hive.food) {
         // add the harvest if there is less of the harvest than the total area times multiplyer
-        if (hive.harvest[resourceKey].amount < hive.harvest[resourceKey].max) {
-          hive.harvest[resourceKey].amount += Math.round(harvestMultiplyers[resourceKey] * hive.area/1000000);
+        if (hive.food[resourceKey].amount < hive.food[resourceKey].max) {
+          hive.food[resourceKey].amount += Math.round(foodValues[resourceKey] * hive.area/1000000);
         }
       }
     });
@@ -149,6 +169,18 @@ onMounted(() => {
   mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
 });
 
+//funciton to devourer plants and provide fibre and glucose
+function devourerPlants() {
+  // check if there is enough plants to devourer
+  if (gameData.value.resources.Plants.amount >= 100) {
+    // remove 100 plants
+    gameData.value.resources.Plants.amount -= 100;
+    // add 100 fibre
+    gameData.value.resources.Fibre.amount += 100;
+    // add 100 glucose
+    gameData.value.resources.Glucose.amount += 100;
+  }
+}
       
 
 const gameData = ref({
@@ -162,15 +194,21 @@ const gameData = ref({
       dyingState: false,
     },
   resources: {
+    // glucose
+    Glucose:
+      {
+        amount: 0,
+        perloop: 0
+      },
     Biomass: 
       {
         amount: 120, 
-        perloop: 10
+        perloop: 0
       }, 
     Fibre: 
       {
         amount: 0, 
-        perloop: 1
+        perloop: 0
       }
     }, 
   date: 
@@ -288,11 +326,12 @@ function tabs(content) {
                 </div>
               </div>
               <p>-</p>
-              <div class="harvest" v-for="(resource, key) in item.harvest">
+              <div class="harvest" v-for="(resource, key) in item.food">
                 <span>{{ key }}</span>
                 <span>{{ formatNumber(resource.amount)}}</span>
                 <!--show max harvest value in tooltip -->
                 <span>{{ formatNumber(resource.max)}}</span>
+                <button @click="devourerFood(item, key)">Devourer {{ key }}</button>
                 
               </div>
           </div>
@@ -362,7 +401,7 @@ function tabs(content) {
   .flexChild:first-child {
     margin-right: 10px;
   }
-  .harvest {
+  .food {
     display: inline-block;
   }
   #appTabs {
@@ -427,7 +466,7 @@ function tabs(content) {
     display: inline-block;
     width: 150px;
   }
-  .harvest span, .hiveResources span  {
+  .food span, .hiveResources span  {
     display: inline-block;
     width: 75px;
   }

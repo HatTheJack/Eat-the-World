@@ -30,5 +30,3 @@ export function formatNumber(number, unit) {
 export function calculateHeartPosition(number, maxnumber, width) {
     return  number*(width / maxnumber) - 7
   }
-
-// function to tick date by hour then by day then by
