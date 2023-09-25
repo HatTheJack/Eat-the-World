@@ -6,21 +6,22 @@ export function calculateArea(radius)
 // Function to access to swarm numberformat from inside vue templates
 export function formatNumber(number, unit) {
   if (unit === "cm") {
-    if (number >= 1000) {
-      number /= 1000;
-      unit = "m";
-    } else if (number >= 1000000) {
+    if (number >= 1000000) {
       number /= 1000000;
       unit = "km";
-    }
-  } else if (unit === "mg") {
-    if (number >= 1000) {
+    } else if (number >= 1000) {
       number /= 1000;
-      unit = "g";
-    } else if (number >= 1000000) {
+      unit = "m";
+    } 
+  } else if (unit === "mg") {
+    if (number >= 1000000) {
       number /= 1000000;
       unit = "kg";
-    }
+    } else if (number >= 1000) {
+
+      number /= 1000;
+      unit = "g";
+    }  
   }
   return unit ? numberformat.formatShort(number) + unit : numberformat.formatShort(number);
 }
@@ -29,3 +30,5 @@ export function formatNumber(number, unit) {
 export function calculateHeartPosition(number, maxnumber, width) {
     return  number*(width / maxnumber) - 7
   }
+
+// function to tick date by hour then by day then by

@@ -6,6 +6,7 @@ export const initHiveForest = ([
       radiusPerBeat: 1,
       areaUsed: 0,
       area: 314.16,
+      previousArea: 0,
       maxArea: 10000000,
       heart: 
         { 
@@ -15,7 +16,7 @@ export const initHiveForest = ([
       resources: {
         Biomass: 
           {
-            amount: 500, 
+            amount: 500000000000, 
             perloop: 10
           }, 
         Fibre: 
@@ -27,40 +28,45 @@ export const initHiveForest = ([
       harvest: {
         Plants: 
           {
-            amount: 0, 
+            amount: 314, 
             perloop: 100,
-            max: 100000000000,
+            max: 0,
           },
         Trees: 
           {
             amount: 0,
-            perloop: 1
-
+            perloop: 1,
+            max: 0,
           },
         Insects: 
           {
             amount: 0, 
-            perloop: 1
+            perloop: 1,
+            max: 0,
           },
         Animals: 
           {
             amount: 0, 
-            perloop: 1
+            perloop: 1,
+            max: 0,
           },
         Birds: 
           {
             amount: 0, 
-            perloop: 1
+            perloop: 1,
+            max: 0,
           },
         Fish: 
           {
             amount: 0, 
-            perloop: 1
+            perloop: 1,
+            max: 0,
           },
         Humans: 
           {
             amount: 0, 
-            perloop: 1
+            perloop: 1,
+            max: 0,
           }
       }
     }, 

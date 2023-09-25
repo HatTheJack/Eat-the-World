@@ -8,13 +8,14 @@ git subtree push --prefix dist origin gh_pages
 <script setup>
 import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { initHiveForest } from './assets/hives.js'
+import { harvestMultiplyers } from "./assets/resources.js";
 import { calculateArea, formatNumber, calculateHeartPosition } from './assets/functions.js';
 import ChildComponent from './components/popups.vue';
 
+
 //init some variables
 // Define a variable to store the interval ID
-let timer = 0;
-const loopInterval = 10;
+const loopInterval = 100;
 let mainGameLoop;
 
 
@@ -28,23 +29,43 @@ function heartBeat() {
   if (hasEnoughBiomass) {
     
     if (gameData.value.heart.amount < gameData.value.heart.max) { // Check if heart amount is less than heart max
-      gameData.value.heart.amount += gameData.value.heart.pertick; // Subtract pertick from each hive if it has enough biomass
+      // gameData.value.heart.amount += gameData.value.heart.pertick; // Subtract pertick from each hive if it has enough biomass
 
       // Checke each hive if they have enough biomass then tick down.
       gameData.value.hive.forEach(hive => {
         if (hive.resources.Biomass.amount >= gameData.value.heart.pertick) {
           // what happens if there is enough
+          //increase radius using pertick
           hive.resources.Biomass.amount -= gameData.value.heart.pertick;
-          hive.heart.dyingState = false
+          hive.heart.dyingState = false          
         } else {
           // what happens if there isn't
           hive.heart.dyingState = true;
         }
       });
       // checks if heart is 100 then rest if it is.
-      } else if (gameData.value.heart.amount == gameData.value.heart.max) {
-        gameData.value.heart.amount = 0;
+    } else if (gameData.value.heart.amount == gameData.value.heart.max) {
+      gameData.value.heart.amount = 0;
+
+      for (const hive of gameData.value.hive) {
+        hive.radius += hive.radiusPerBeat;
+        // set hive previous area to current area
+        hive.previousArea = hive.area;
+        // calculate new area based on radius
+        hive.area = Math.min(hive.maxArea, calculateArea(hive.radius));
+        let difference = hive.area - hive.previousArea;
+
+        for (const resourceKey in hive.harvest) {
+          // check if current resource is Plants
+          if (resourceKey == "Plants") {
+
+          }
+          // increase each harvest amount by the difference in area
+          hive.harvest[resourceKey].amount += Math.round((difference * harvestMultiplyers.harvest[resourceKey])*harvestMultiplyers.Overall);
+        }
       }
+      // adds to each harvest max based on area using forEach vue
+    }
         
   } else {
     // Handle the case when no hive has enough biomass
@@ -59,11 +80,35 @@ function noHeartBeat() {
 function mainLoop() {
   // let biomassAreaMultiplyer = 500;
   // let fibreAreaMultiplyer = 1.5;
-  timer++;
+  gameData.value.date.timer++;
   heartBeat();
 
-  if (timer = 100) {
-    timer = 0;// reset counter
+  function tickHour() {
+  gameData.value.date.hour += 4;
+  if (gameData.value.date.hour == 24) {
+    gameData.value.date.hour = 0;
+    gameData.value.date.day++;
+  }
+  if (gameData.value.date.day == 365) {
+    gameData.value.date.day = 0;
+    gameData.value.date.year++;
+  }   
+}
+  if (gameData.value.date.timer == 100) {
+    gameData.value.date.timer = 0;// reset counter
+    //add to hour every time then add to day when hour is 24 and year when day is 365
+    tickHour();
+    // add to each harvest resource based on harvest multiplyer and current area
+    gameData.value.hive.forEach(hive => {
+      for (const resourceKey in hive.harvest) {
+        // add the harvest if there is less of the harvest than the total area times multiplyer
+        if (hive.harvest[resourceKey].amount < hive.harvest[resourceKey].max) {
+          hive.harvest[resourceKey].amount += Math.round(harvestMultiplyers[resourceKey] * hive.area/1000000);
+        }
+      }
+    });
+
+
     if (gameData.value.heart.dyingState == true) {
       gameData.value.hive.forEach(hive => {
         hive.heart.healthMultiplyer = Math.max(hive.heart.healthMultiplyer - 0.001, -1)
@@ -127,7 +172,15 @@ const gameData = ref({
         amount: 0, 
         perloop: 1
       }
-  }
+    }, 
+  date: 
+    {
+      // year days and hours since start of game where each second is an hour
+      year: 0,
+      day: 0,
+      hour: 0,
+      timer: 0,
+    }
 });
 
 const totalResourcesInHive = computed(() => {
@@ -184,6 +237,15 @@ function tabs(content) {
 
 <template>
   <!-- <child-component /> -->
+  <!-- top information menu in game date and time etc -->
+  <div id="topMenu">
+    <div id="gameDate">
+      <span>Year: {{ gameData.date.year }}</span>
+      <span>Day: {{ gameData.date.day }}</span>
+      <span>timer: {{ gameData.date.timer }}</span> 
+    </div>
+  </div>
+
     <div class="flexContainer">
       <div id="hiveView" class="flexChild40 flexChild">
         <div class="heartBeat" ref="heartbeatElement">
@@ -229,6 +291,9 @@ function tabs(content) {
               <div class="harvest" v-for="(resource, key) in item.harvest">
                 <span>{{ key }}</span>
                 <span>{{ formatNumber(resource.amount)}}</span>
+                <!--show max harvest value in tooltip -->
+                <span>{{ formatNumber(resource.max)}}</span>
+                
               </div>
           </div>
         </div>
@@ -265,6 +330,17 @@ function tabs(content) {
     </div>
   <div id="dev">
     <h4>I am some debug info</h4>
+    <!--debug tool set heart value to max -->
+    <button @click="gameData.heart.amount = gameData.heart.max">Max heart</button>
+    <!-- button to increase radius per beat by 100 -->
+    <button @click="gameData.hive[0].radiusPerBeat += 100">Increase radius per beat 100</button>
+    <!-- button to increase radius per beat by 1000 -->
+    <button @click="gameData.hive[0].radiusPerBeat += 1000">Increase radius per beat 1000</button>
+    <!-- button to increase radius per beat by 10000 -->
+    <button @click="gameData.hive[0].radiusPerBeat += 10000">Increase radius per beat 10000</button>
+    <!-- button to increase radius per beat by 100000 -->
+    <button @click="gameData.hive[0].radiusPerBeat += 1000000000">Increase radius per beat 1000000000</button>
+
     <pre>{{ gameData }}</pre>
     <!-- <pre>{{ JSON.stringify(tabMapping, null, 2) }}</pre>
     <pre>{{ JSON.stringify(tabMapping, null, 2) }}</pre> -->
@@ -422,3 +498,5 @@ function tabs(content) {
     overflow-y: scroll;
   }
 </style>
+
+
