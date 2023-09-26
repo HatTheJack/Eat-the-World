@@ -7,9 +7,11 @@ git subtree push --prefix dist origin gh_pages
 -->
 <script setup>
 import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import { initHiveForest } from './assets/hives.js'
-import { foodValues } from "./assets/resources.js";
-import { calculateArea, formatNumber, calculateHeartPosition } from './assets/functions.js';
+// import { initHiveForest } from '@/assets/js/hives.js'
+import { gameData, tabMapping, showDev } from '@/assets/js/gameData.js'
+import { foodValues } from "@/assets/js/resources.js";
+import { calculateArea, formatNumber, calculateHeartPosition, eatFood, heartBeat, tickHour, addHive, tabs, unlockResearch } from '@/assets/js/functions.js';
+import { researchInfo } from '@/assets/js/research.js';
 import ChildComponent from './components/popups.vue';
 
 
@@ -19,83 +21,6 @@ const loopInterval = 10;
 let mainGameLoop;
 
 
-//function to devourer food from current hive and provide resources based on foodValues
-function devourerFood(hive, food) {
-  //const selectedHive = gameData.hive.find((hive) => hive.id === hiveId);
-  // check if there is enough food to devourer
-  if (hive.food[food].amount >= 100) {
-    // remove 100 food
-    hive.food[food].amount -= 100;
-    // add 100 glucose
-    hive.resources.Glucose.amount += 100 * foodValues.food[food].glucose;
-    // add 100 fibre
-    hive.resources.Fibre.amount += 100 * foodValues.food[food].fibre;
-    // add 100 biomass
-    hive.resources.Biomass.amount += 100 * foodValues.food[food].biomass;
-  }
-}
-
-
-function heartBeat() {
-  // checks if there is enough biomass each tick
-  const hasEnoughBiomass = gameData.value.hive.some(hive => {
-    return hive.resources.Biomass.amount >= gameData.value.heart.pertick;
-  });
-
-  // things that happen if there is enough biomass
-  if (hasEnoughBiomass) {
-    
-    if (gameData.value.heart.amount < gameData.value.heart.max) { // Check if heart amount is less than heart max
-      gameData.value.heart.amount += gameData.value.heart.pertick; // Subtract pertick from each hive if it has enough biomass
-
-      // Check each hive if they have enough biomass then tick down.
-      gameData.value.hive.forEach(hive => {
-        if (hive.resources.Biomass.amount >= gameData.value.heart.pertick) {
-          // what happens if there is enough
-          //increase radius using pertick
-          hive.resources.Biomass.amount -= gameData.value.heart.pertick;
-          hive.heart.dyingState = false          
-        } else {
-          // what happens if there isn't
-          hive.heart.dyingState = true;
-        }
-      });
-      // checks if heart is 100 then reset if it is.
-    } else if (gameData.value.heart.amount == gameData.value.heart.max) {
-      gameData.value.heart.amount = 0;
-
-
-      for (const hive of gameData.value.hive) {
-        hive.radius += hive.radiusPerBeat;
-        // set hive previous area to current area
-        hive.previousArea = hive.area;
-        // calculate new area based on radius
-        hive.area = Math.min(hive.maxArea, calculateArea(hive.radius));
-        let difference = hive.area - hive.previousArea;
-
-        for (const resourceKey in hive.food) {
-          // check if current resource is Plants
-          if (resourceKey == "Plants") {
-
-          }
-          // increase each harvest amount by the difference in area
-          hive.food[resourceKey].amount += Math.round((difference * foodValues.food[resourceKey].multiplyer)*foodValues.Overall);
-          // increase kill one human each time
-
-        }
-      }
-      // adds to each harvest max based on area using forEach vue
-    }
-        
-  } else {
-    // Handle the case when no hive has enough biomass
-    // You can add your own logic here if needed
-    gameData.value.heart.dyingState = true;
-  }
-}
-function noHeartBeat() {
-  hive.heart.healthMultiplyer -= 0.001;
-}
 // main loop function
 function mainLoop() {
   // let biomassAreaMultiplyer = 500;
@@ -103,17 +28,6 @@ function mainLoop() {
   gameData.value.date.timer++;
   heartBeat();
 
-  function tickHour() {
-  gameData.value.date.hour += 4;
-  if (gameData.value.date.hour == 24) {
-    gameData.value.date.hour = 0;
-    gameData.value.date.day++;
-  }
-  if (gameData.value.date.day == 365) {
-    gameData.value.date.day = 0;
-    gameData.value.date.year++;
-  }   
-}
   if (gameData.value.date.timer == 100) {
     gameData.value.date.timer = 0;// reset counter
     //add to hour every time then add to day when hour is 24 and year when day is 365
@@ -134,6 +48,8 @@ function mainLoop() {
         hive.heart.healthMultiplyer = Math.max(hive.heart.healthMultiplyer - 0.001, -1)
       });  
     }
+
+   
     // do stuff every second
   }
 
@@ -169,134 +85,32 @@ onMounted(() => {
   mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
 });
 
-//funciton to devourer plants and provide fibre and glucose
-function devourerPlants() {
-  // check if there is enough plants to devourer
-  if (gameData.value.resources.Plants.amount >= 100) {
-    // remove 100 plants
-    gameData.value.resources.Plants.amount -= 100;
-    // add 100 fibre
-    gameData.value.resources.Fibre.amount += 100;
-    // add 100 glucose
-    gameData.value.resources.Glucose.amount += 100;
-  }
-}
-      
 
-const gameData = ref({
-  hive: JSON.parse(JSON.stringify(initHiveForest)),
-  heart: 
-    { 
-      amount: 0, 
-      max: 100, 
-      pertick: 1,
-      multiplyer: 1,
-      dyingState: false,
-    },
-  resources: {
-    // glucose
-    Glucose:
-      {
-        amount: 0,
-        perloop: 0
-      },
-    Biomass: 
-      {
-        amount: 120, 
-        perloop: 0
-      }, 
-    Fibre: 
-      {
-        amount: 0, 
-        perloop: 0
-      }
-    }, 
-  date: 
-    {
-      // year days and hours since start of game where each second is an hour
-      year: 0,
-      day: 0,
-      hour: 0,
-      timer: 0,
-    }
-});
-
-const totalResourcesInHive = computed(() => {
-  const result = {};
-
-  gameData.value.hive.forEach(hive => {
-    for (const resourceKey in hive.resources) {
-      if (result[resourceKey]) {
-        result[resourceKey] += hive.resources[resourceKey].amount;
-      } else {
-        result[resourceKey] = hive.resources[resourceKey].amount;
-      }
-    }
-  });
-
-  return result;
-});
-
-// Bind the computed property to the resources item in gameData
-gameData.value.resources = totalResourcesInHive;
-
-// function add a new hive to the colony
-function addHive(biome, totalArea) {
-  const lastHive = gameData.value.hive[gameData.value.hive.length - 1];
-  const newId = lastHive.id + 1;
-
-  // Create a new hive object by merging properties from initHiveForest and new properties
-  const newHive = JSON.parse(JSON.stringify(initHiveForest[0]));
-
-  newHive.id = newId;
-  newHive.biome = biome; // You can set the biome as needed
-
-  gameData.value.hive.push(newHive);
-}
-const tabMapping = ref({
-    hive: true,
-    mutations: false,
-    research: false,
-    grow: false,
-  });
-
-function tabs(content) {
-  // Set all properties to false
-  for (const key in tabMapping.value) {
-    tabMapping.value[key] = false;
-  }
-
-  // Set the corresponding variable to true based on the content input
-  if (tabMapping.value.hasOwnProperty(content)) {
-    tabMapping.value[content] = true;
-  }
-}
 </script>
 
 <template>
   <!-- <child-component /> -->
   <!-- top information menu in game date and time etc -->
-  <div id="topMenu">
-    <div id="gameDate">
-      <span>Year: {{ gameData.date.year }}</span>
-      <span>Day: {{ gameData.date.day }}</span>
-      <span>timer: {{ gameData.date.timer }}</span> 
+  <div class="flexContainerVertical">
+    <div id="topMenu" class="">
+      <div id="gameDate">
+        <span>Year: {{ gameData.date.year }}</span>
+        <span>Day: {{ gameData.date.day }}</span>
+        <!-- <span>timer: {{ gameData.date.timer }}</span>  -->
+      </div>
     </div>
-  </div>
 
-    <div class="flexContainer">
-      <div id="hiveView" class="flexChild40 flexChild">
+    <div class="flexContainerHorizontal flexChild95">
+      <div id="hiveView" class="flexChild40 flexChildVertical">
         <div class="heartBeat" ref="heartbeatElement">
           <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(gameData.heart.amount, gameData.heart.max, heartbeatWidth) + 'px' }"/>
           <progress class="growth-progress" :value="gameData.heart.amount" :max="gameData.heart.max"></progress>
         </div>   
         <div id="resourceoverview"></div>
         <div id="hives">
-          <div class="hiveinfo" v-for="item in gameData.hive">
-      
-              <!-- <span>Hive {{ item.id }}</span> -->
-              <span>Biome: {{ item.biome }}</span>
-              <span>Radius: {{ formatNumber(item.radius, "cm") }}</span>
+          <div class="hiveinfo" v-for="hive in gameData.hive">
+              <span>Biome: {{ hive.biome }}</span>
+              <span>Radius: {{ formatNumber(hive.radius, "cm") }}</span>
               <span class="hivearea">Area:</span>
               <table style="margin-bottom: -3.5px" class="hiveAreaTable">
                 <thead>
@@ -311,33 +125,43 @@ function tabs(content) {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{{ formatNumber(item.areaUsed, "cm") }}</td>
+                    <td>{{ formatNumber(hive.areaUsed, "cm") }}</td>
                     <td class="slash">/ </td>
-                    <td>{{ formatNumber(item.area, "cm") }}</td>
+                    <td>{{ formatNumber(hive.area, "cm") }}</td>
                     <td class="slash">/</td>
-                    <td>{{ formatNumber(item.maxArea, "cm") }} sq</td>
+                    <td>{{ formatNumber(hive.maxArea, "cm") }} sq</td>
                   </tr>
                 </tbody>
               </table>
               <div class="hiveResources">
-                <div v-for="(resource, key) in item.resources">
-                  <span>{{ key }}</span>
-                  <span>{{ formatNumber(resource.amount, "mg") }}</span>
+                <div v-for="(resource, key) in hive.resources">
+                  <div v-if="resource.show == true">
+                    <span>{{ key }}</span>
+                    <span>{{ formatNumber(resource.amount, "mg") }}</span>
+                  </div>
                 </div>
               </div>
               <p>-</p>
-              <div class="harvest" v-for="(resource, key) in item.food">
-                <span>{{ key }}</span>
-                <span>{{ formatNumber(resource.amount)}}</span>
-                <!--show max harvest value in tooltip -->
-                <span>{{ formatNumber(resource.max)}}</span>
-                <button @click="devourerFood(item, key)">Devourer {{ key }}</button>
-                
-              </div>
+              <ul>
+                <li class="harvest" v-for="(food, key) in hive.food">
+                  <div v-if="food.show == true">
+                    <span>{{ key }}</span>
+                    <span>{{ formatNumber(food.amount)}}</span>
+                    <!--show max harvest value in tooltip -->
+                    <span>{{ formatNumber(food.max)}}</span>
+                    <button v-if="key === 'Plants'" @click="eatFood(hive, key)">Eat</button>
+                  </div>        
+                </li>
+              </ul>
           </div>
         </div>
-        <div>
+        <div id="hiveTotals">
           <h3>Hive total</h3>
+          <ul>
+            <li v-for="(amount, label) in gameData.genes" :key="label">
+              {{ label }}: {{ formatNumber(amount) }} 
+            </li>
+          </ul>
           <ul>
             <li v-for="(amount, label) in gameData.resources" :key="label">
               {{ label }}: {{ formatNumber(amount, "mg") }} 
@@ -345,7 +169,7 @@ function tabs(content) {
           </ul>
         </div>
       </div>
-      <aside id="rightHandMenu" class="flexChild60 flexChild">
+      <aside id="rightHandMenu" class="flexChild60 flexChildVertical">
       <nav id="appTabs">
         <a @click="tabs('hives')" :class="{ active: tabMapping.hive}" href="#">Hives</a>
         <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
@@ -360,6 +184,17 @@ function tabs(content) {
         </div>
         <div v-show="tabMapping.research">
           <h3>Research is here</h3>
+          <div v-for="(research, key) in researchInfo.tierBiome">
+            {{ research.requiredFood }} unlocked : {{ gameData.foodUnlocked[research.requiredFood] }}
+            <!-- {{ gameData.foodUnlocked.Plants }}
+            {{ research.requiredFood }} -->
+            <div v-if="gameData.research.tierBiome[key].available && !gameData.research.tierBiome[key].unlocked">
+              <span>{{ key }}</span>
+              <span>{{ research.description }}</span>
+              <span>{{ research.cost }}</span>
+              <button @click="unlockResearch(key)">Buy</button>
+            </div>
+          </div>
         </div>
         <div v-show="tabMapping.grow">
           <h3>Growing is here</h3>
@@ -367,28 +202,63 @@ function tabs(content) {
         </div>
       </aside>
     </div>
-  <div id="dev">
-    <h4>I am some debug info</h4>
-    <!--debug tool set heart value to max -->
-    <button @click="gameData.heart.amount = gameData.heart.max">Max heart</button>
-    <!-- button to increase radius per beat by 100 -->
-    <button @click="gameData.hive[0].radiusPerBeat += 100">Increase radius per beat 100</button>
-    <!-- button to increase radius per beat by 1000 -->
-    <button @click="gameData.hive[0].radiusPerBeat += 1000">Increase radius per beat 1000</button>
-    <!-- button to increase radius per beat by 10000 -->
-    <button @click="gameData.hive[0].radiusPerBeat += 10000">Increase radius per beat 10000</button>
-    <!-- button to increase radius per beat by 100000 -->
-    <button @click="gameData.hive[0].radiusPerBeat += 1000000000">Increase radius per beat 1000000000</button>
+  </div>
+  <div id="devArea">
+    <div v-if="showDev" id="dev">
+      <h4>I am some debug info</h4>
+      <!--debug tool set heart value to max -->
+      <button @click="gameData.heart.amount = gameData.heart.max">Max heart</button>
+      <!-- button to increase radius per beat by 100 -->
+      <button @click="gameData.hive[0].radiusPerBeat += 100">Increase radius per beat 100</button>
+      <!-- button to increase radius per beat by 1000 -->
+      <button @click="gameData.hive[0].radiusPerBeat += 1000">Increase radius per beat 1000</button>
+      <!-- button to increase radius per beat by 10000 -->
+      <button @click="gameData.hive[0].radiusPerBeat += 10000">Increase radius per beat 10000</button>
+      <!-- button to increase radius per beat by 100000 -->
+      <button @click="gameData.hive[0].radiusPerBeat += 1000000000">Increase radius per beat 1000000000</button>
 
-    <pre>{{ gameData }}</pre>
-    <!-- <pre>{{ JSON.stringify(tabMapping, null, 2) }}</pre>
-    <pre>{{ JSON.stringify(tabMapping, null, 2) }}</pre> -->
+      <pre>{{ gameData }}</pre>
+      <!-- <pre>{{ JSON.stringify(tabMapping, null, 2) }}</pre>
+      <pre>{{ JSON.stringify(tabMapping, null, 2) }}</pre> -->
+    </div>
+    <button @click="showDev = !showDev">Toggle Dev</button>
   </div>
 </template>
 
 <style scoped>
-  .flexContainer {
+@import "@/assets/css/themes.css";
+
+  #topMenu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 35px;
+    background: var(--theme-primary);
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  #hiveTotals ul {
+
+  }
+  #hiveTotals ul li {
+    display: inline-block;
+    margin: 0 10px;
+  }
+  .flexContainerVertical {
       display: flex;
+      flex-direction: column;
+      height: 100vh;
+  }
+  .flexContainerHorizontal {
+      display: flex;
+  }
+  .flexChild5 {
+    overflow: hidden;
+    flex: 5;
+  }
+  .flexChild95 {
+    overflow: hidden;
+    flex: 95;  
   }
   .flexChild40 {
     overflow: hidden;
@@ -398,7 +268,7 @@ function tabs(content) {
     overflow: hidden;
     flex:60;
   }  
-  .flexChild:first-child {
+  .flexChildVertical:first-child {
     margin-right: 10px;
   }
   .food {
@@ -431,6 +301,8 @@ function tabs(content) {
   }
   .heartBeat {
       position: relative;
+      box-sizing: border-box;
+      padding: 5px;
       width: 100%;
     }
   /* Style the progress bar container */
@@ -438,10 +310,10 @@ function tabs(content) {
     display: block;
     width: 100%;
     height: 5px;
-    margin: 0 0 5px 0;
     border: 1px solid #ccc;
     border-radius: 0;
     background-color: violet;
+    box-sizing: border-box;
 
     /* Style the progress bar fill for WebKit browsers (Chrome and Safari) */
     &::-webkit-progress-value {
@@ -508,16 +380,7 @@ function tabs(content) {
   }
   #hiveView {
     box-sizing: border-box;
-    padding: 10px;
-    height: 100vh;
-    background: grey;
-    overflow-y: scroll;
-  }
-  #rightHandMenu {
-    box-sizing: border-box;
-    padding: 10px;
-    height: 100vh;
-    background: grey;
+    /* height: 100vh; */
     overflow-y: scroll;
   }
   .heartIcon {
@@ -527,13 +390,20 @@ function tabs(content) {
     margin-top: -4px;
   }
   /* Dev Tools styling */
+  #devArea {
+    text-align: right;
+    position: absolute; 
+    bottom: 0;
+    right: 0;   
+  }
   #dev {
-    position: absolute;
+    position: relative;
     width: 250px;
     height: 300px;
     background: lightgrey;
     bottom: 0;
     right: 0;
+    color: black;
     overflow-y: scroll;
   }
 </style>
