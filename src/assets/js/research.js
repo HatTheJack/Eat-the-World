@@ -46,11 +46,13 @@ export const researchData = {
     tierBiome: {
         venusFlyTrap: {
             requiredFoodMet: false,
+            affordable: false,
             available: true,
             unlocked: false,
         },
         leafCutterAnt: {
             requiredFoodMet: false,
+            affordable: false,
             available: false,
             unlocked: false,
         },

@@ -1,8 +1,17 @@
 :root {
+    --theme-primary: #360A73;
+    --theme-secondary: #A60A60;
+    --theme-tertiary: #F28B30;
+    --theme-accent: #E6512F;
+    --theme-background: #211d25;
+    --theme-text: #FFC033;
+}
+
+/* :root {
     --theme-primary: #014034;
     --theme-secondary: #2CBF89;
     --theme-tertiary: #91F2C5;
     --theme-accent: #91F2C5;
     --theme-background: #400817;
     --theme-text: wheat;
-}
+} */

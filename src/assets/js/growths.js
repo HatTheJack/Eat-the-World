@@ -4,6 +4,14 @@ export const growthsInfo = {
         {
             name: "Venus Fly Trap",
             description: "A plant that eats insects",
+            // variable that will be used to determine which resource and how many resources are gained per growth
+            actions: {
+                eat: {
+                    food: {
+                        Insects: 1,
+                    }
+                }
+            },
             costMultiplyer: 2,
             cost: {
                 },

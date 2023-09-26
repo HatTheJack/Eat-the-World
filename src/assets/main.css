@@ -26,6 +26,10 @@ body {
 /* Remove list styles for ul and li */
 ul, li {
   list-style: none;
+  margin: 5px 0;
+} 
+ul {
+  margin: 10px 0;
 }
 
 /* Remove underlines from links */

@@ -13,6 +13,7 @@ import { foodValues } from "@/assets/js/resources.js";
 import { calculateArea, formatNumber, calculateHeartPosition, eatFood, heartBeat, tickHour, addHive, tabs, unlockResearch } from '@/assets/js/functions.js';
 import { researchInfo } from '@/assets/js/research.js';
 import ChildComponent from './components/popups.vue';
+import tooltip from './components/tooltip.vue';
 
 
 //init some variables
@@ -108,7 +109,7 @@ onMounted(() => {
         </div>   
         <div id="resourceoverview"></div>
         <div id="hives">
-          <div class="hiveinfo" v-for="hive in gameData.hive">
+          <div class="hiveinfo" v-for="hive in gameData.hive">  
               <span>Biome: {{ hive.biome }}</span>
               <span>Radius: {{ formatNumber(hive.radius, "cm") }}</span>
               <span class="hivearea">Area:</span>
@@ -175,32 +176,46 @@ onMounted(() => {
         <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
         <a @click="tabs('research')" :class="{ active: tabMapping.research}" href="#">Research</a>
         <a @click="tabs('grow')" :class="{ active: tabMapping.grow}" href="#">Grow</a>
-      </nav>
+      </nav>  
+      <div id="tabContent">
         <div v-show="tabMapping.hives">
           <h3>Mutations are here</h3>
         </div>
-        <div v-show="tabMapping.mutations">
-          <h3>Mutations are here</h3>
+        <!-- Mutations buff the creatures, make them breed quicker, can turn them into soldiers etc -->
+        <div v-show="tabMapping.muations">
+            <h3>Mutations are here</h3>
         </div>
+        <!-- Research unlocks everything -->
         <div v-show="tabMapping.research">
-          <h3>Research is here</h3>
           <div v-for="(research, key) in researchInfo.tierBiome">
-            {{ research.requiredFood }} unlocked : {{ gameData.foodUnlocked[research.requiredFood] }}
-            <!-- {{ gameData.foodUnlocked.Plants }}
-            {{ research.requiredFood }} -->
-            <div v-if="gameData.research.tierBiome[key].available && !gameData.research.tierBiome[key].unlocked">
-              <span>{{ key }}</span>
-              <span>{{ research.description }}</span>
-              <span>{{ research.cost }}</span>
-              <button @click="unlockResearch(key)">Buy</button>
-            </div>
+              <tooltip class="purchaseButton" v-if="gameData.research.tierBiome[key].available && !gameData.research.tierBiome[key].unlocked">
+              <!-- Content goes here, it could be a button, text, an image, etc. -->
+                <button @click="unlockResearch(key)">{{ key }}</button>
+                <!-- Tooltip content goes here using the tooltip slot -->
+                <template #tooltip>
+                    <h3>{{ key }}</h3>
+                    <span>{{ research.description }}</span>
+                    <ul>
+                      <li v-for="(cost, key) in research.cost.genes">{{ key }}: {{ cost }}</li>
+                    </ul>
+                    <ul>
+                      <li v-for="(cost, key) in research.cost.resources">{{ key }}: {{ cost }}</li>
+                    </ul>
+                </template>
+              </tooltip>
+              <!-- <button @click="unlockResearch(key)">{{ key }}</button> -->
+              <!-- <div class="tooltip">
+
+              </div> -->
           </div>
         </div>
+        <!-- Growing creates new things like 'buildings' the do things -->
         <div v-show="tabMapping.grow">
           <h3>Growing is here</h3>
-        <button @click="addHive('Desert')" id="addHive">add hive</button>
+          <button @click="addHive('Desert')" id="addHive">add hive</button>
         </div>
-      </aside>
+      </div>
+    </aside>
     </div>
   </div>
   <div id="devArea">
@@ -227,7 +242,13 @@ onMounted(() => {
 
 <style scoped>
 @import "@/assets/css/themes.css";
-
+  .purchaseButton button {
+    background-color: var(--theme-primary);
+    padding: 10px;
+  }
+  .purchaseButton button:hover {
+    background-color: var(--theme-secondary);
+  }
   #topMenu {
     display: flex;
     align-items: center;
@@ -253,19 +274,15 @@ onMounted(() => {
       display: flex;
   }
   .flexChild5 {
-    overflow: hidden;
     flex: 5;
   }
   .flexChild95 {
-    overflow: hidden;
     flex: 95;  
   }
   .flexChild40 {
-    overflow: hidden;
     flex: 40;
   }  
   .flexChild60 {
-    overflow: hidden;
     flex:60;
   }  
   .flexChildVertical:first-child {
@@ -274,36 +291,42 @@ onMounted(() => {
   .food {
     display: inline-block;
   }
+  #rightHandMenu {
+    position: relative;
+  }
+  #tabContent {
+    margin-top: 35px;
+    border-top: 3px solid var(--theme-accent);
+  }
   #appTabs {
+    position: absolute;
+    padding: 5px;
     width: 100%;
     height: 35px;
   }
   #appTabs a {
-    width: max-content;
+    display: inline-block;
+    box-sizing: border-box;
     padding: 5px 20px;
     margin-right: 10px;
-    border-bottom: 3px solid black;
-    text-decoration: none;
-    color: black;
-  }
-  #appTabs a:visited {
     width: max-content;
-    padding: 5px 20px;
-    margin-right: 10px;
-    border-bottom: 3px solid black;
+    border: 3px solid transparent;
+    /* border-bottom: 3px solid var(--theme-accent); */
     text-decoration: none;
-    color: black;
+    color: var(--theme-accent);
   }
   #appTabs a.active {
-    border: 3px solid black;
+    background: var(--theme-background);
+    border: 3px solid var(--theme-accent);
     border-radius: 3px;
-    border-bottom: 0px solid black;
+    border-bottom: 3px solid transparent;
   }
   .heartBeat {
       position: relative;
       box-sizing: border-box;
       padding: 5px;
       width: 100%;
+      background: var(--theme-accent);
     }
   /* Style the progress bar container */
   .growth-progress {
@@ -372,7 +395,7 @@ onMounted(() => {
     width: 100%;
     padding: 10px;
     margin: 0 0 10px 0;
-    background:   darkslategrey;
+    background:   var(--theme-secondary);
     color: wheat
   }
   #hives {
@@ -381,7 +404,7 @@ onMounted(() => {
   #hiveView {
     box-sizing: border-box;
     /* height: 100vh; */
-    overflow-y: scroll;
+    overflow-y: auto;
   }
   .heartIcon {
     position: absolute;
