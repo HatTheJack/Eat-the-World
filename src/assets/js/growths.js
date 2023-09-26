@@ -1,10 +1,10 @@
-export growthsInfo: {
+export const growthsInfo = {
     tierBiome: {
         venusFlyTrap:
         {
             name: "Venus Fly Trap",
             description: "A plant that eats insects",
-            costMultiplyer: 2;
+            costMultiplyer: 2,
             cost: {
                 },
                 resources: {
@@ -16,10 +16,9 @@ export growthsInfo: {
             unlockedBy: "Venus Fly Trap",
             biome: "Forest",
             tier: 1,
-        },
-    }
+    },
 }
-export growthsData: {
+export const growthsData = {
     tierBiome: {
         venusFlyTrap: {
             available: false,
