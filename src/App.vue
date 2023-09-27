@@ -126,11 +126,11 @@ onMounted(() => {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{{ formatNumber(hive.areaUsed, "cm") }}</td>
+                    <td>{{ formatNumber(hive.areaUsed, "cm2") }}</td>
                     <td class="slash">/ </td>
-                    <td>{{ formatNumber(hive.area, "cm") }}</td>
+                    <td>{{ formatNumber(hive.area, "cm2") }}</td>
                     <td class="slash">/</td>
-                    <td>{{ formatNumber(hive.maxArea, "cm") }} sq</td>
+                    <td>{{ formatNumber(hive.maxArea, "cm2") }} sq</td>
                   </tr>
                 </tbody>
               </table>

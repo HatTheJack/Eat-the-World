@@ -72,8 +72,19 @@ export function formatNumber(number, unit) {
 
       number /= 1000;
       unit = "g";
-    }  
+    }    
+  }  // if unit = cm2 then convert to m2 or km2 if above threadhold
+  else if (unit === "cm2") { 
+    unit === "cm²";
+    if (number >= 1e+10) {
+      number /= 1e+10;
+      unit = "km²";
+    } else if (number >= 10000) {
+      number /= 10000;
+      unit = "m²";
+    }
   }
+
   return unit ? numberformat.formatShort(number, {suffixes: ['mg', 'g', 'kg']}) + unit : numberformat.formatShort(number);
 }
 

@@ -7,7 +7,7 @@ export const initHiveForest = ([
     areaUsed: 0,
     area: 314.16,
     previousArea: 0,
-    maxArea: 10000000,
+    maxArea: 100000000,
     heart: 
       { 
         healthMultiplyer: 1,
@@ -78,13 +78,6 @@ export const initHiveForest = ([
           perloop: 0,
           max: 0,
         },
-      Trees: 
-        {
-          show: false,
-          amount: 0,
-          perloop: 0,
-          max: 0,
-        },
       Insects: 
         {
           show: false,
@@ -96,6 +89,13 @@ export const initHiveForest = ([
         {
           show: false,
           amount: 0, 
+          perloop: 0,
+          max: 0,
+        },
+      Trees: 
+        {
+          show: false,
+          amount: 0,
           perloop: 0,
           max: 0,
         },

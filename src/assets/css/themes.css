@@ -1,6 +1,6 @@
 :root {
-    --theme-primary: #360A73;
-    --theme-secondary: #A60A60;
+    --theme-primary: #2d1510;
+    --theme-secondary: #E6512F;
     --theme-tertiary: #F28B30;
     --theme-accent: #E6512F;
     --theme-background: #211d25;
@@ -14,4 +14,13 @@
     --theme-accent: #91F2C5;
     --theme-background: #400817;
     --theme-text: wheat;
+} */
+
+/* :root {
+    --theme-primary: #360A73;
+    --theme-secondary: #A60A60;
+    --theme-tertiary: #F28B30;
+    --theme-accent: #E6512F;
+    --theme-background: #211d25;
+    --theme-text: #FFC033;
 } */

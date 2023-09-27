@@ -87,6 +87,19 @@ export const gameData = ref({
       Trees: false,
       Humans: false,
     },
+    totalEaten: {
+      Flora: {
+        Herbaceous: 0,
+        Arthropods: 0,
+      },
+      Fauna: {      
+        Mammalia: 0,
+        Reptilia: 0,
+        Aves: 0,
+      },
+      Fungi: 0,      
+      Sentients: 0,
+    },
 });
 
 // Define the tabMapping object, doesn't need to be stored in gameData
