@@ -1,94 +1,127 @@
+import { COMMON_NAMES } from "@/assets/js/definitions.js";
+
 export const foodValues = {
   Overall: 0.00001,
-  food: {
-    Plants: {
-      amountToEat: 100,
-      multiplyer: 100000,
-      resources: {
-        Biomass: 1,
-        Fibre: 1,
-        Glucose: 1,
+  [COMMON_NAMES.FOOD.NAME]: {
+    [COMMON_NAMES.FOOD.FLORA.NAME]: {
+      [COMMON_NAMES.FOOD.FLORA.HERBACEOUS.NAME]: {
+        amountToEat: 100,
+        multiplyer: 100000,
+        resources: {
+          Biomass: 1,
+          Fibre: 1,
+          Glucose: 1,
+        },
+        genes: {
+          HerbaceousGene: 1,
+        }
       },
-      genes: {
-        PlantsGene: 1,
-      }
+      [COMMON_NAMES.FOOD.FLORA.ARBOREAL.NAME]: {
+        amountToEat: 100,
+        multiplyer: 1,
+        resources: {
+          Biomass: 1,
+          Fibre: 1,
+          Glucose: 1,
+        },
+        genes: {
+          ArborealGene: 1,
+        }
+      },
     },
-    Insects: {
-      amountToEat: 100,
-      multiplyer: 200,
-      resources: {
-        Biomass: 10,
-        Chitin: 10, // Scaled to match Biomass
-        Protein: 10, // Scaled to match Biomass
+    [COMMON_NAMES.FOOD.FAUNA.NAME]: {
+      [COMMON_NAMES.FOOD.FAUNA.ARTHROPODS.NAME]: {
+        amountToEat: 100,
+        multiplyer: 200,
+        resources: {
+          Biomass: 10,
+          Chitin: 10,
+          Protein: 10,
+        },
+        genes: {
+          ArthropodsGene: 1,
+        }
       },
-      genes: {
-        InsectsGene: 1,
-      }
+      [COMMON_NAMES.FOOD.FAUNA.MAMMALIA.NAME]: {
+        amountToEat: 1,
+        multiplyer: 20,
+        resources: {
+          Biomass: 100,
+          Protein: 100,
+          Fat: 100,
+          Bones: 100,
+        },
+        genes: {
+          MammaliaGene: 1,
+        }
+      },
+      [COMMON_NAMES.FOOD.FAUNA.REPTILIA.NAME]: {
+        amountToEat: 1,
+        multiplyer: 20,
+        resources: {
+          Biomass: 100,
+          Protein: 100,
+          Fat: 100,
+          Bones: 100,
+        },
+        genes: {
+          ReptiliaGene: 1,
+        }
+      },
+      [COMMON_NAMES.FOOD.FAUNA.AVES.NAME]: {
+        amountToEat: 1,
+        multiplyer: 10,
+        resources: {
+          Biomass: 150,
+          Protein: 150,
+          Fat: 150,
+          pneumatisedBones: 150,
+        },
+        genes: {
+          AvianGene: 1,
+        }
+      },
+      [COMMON_NAMES.FOOD.FAUNA.AQUATIC.NAME]: {
+        amountToEat: 1,
+        multiplyer: 50,
+        resources: {
+          Biomass: 50000,
+          Protein: 50000,
+          Fat: 50000,
+          Bones: 50000,
+        },
+        genes: {
+          AquaticGene: 1,
+        }
+      },
     },
-    Fish: {
-      amountToEat: 1,
-      multiplyer: 50,
-      resources: {
-        Biomass: 50000,
-        Protein: 50000, // Scaled to match Biomass
-        Fat: 50000, // Scaled to match Biomass
-        Bones: 50000, // Scaled to match Biomass
+    [COMMON_NAMES.FOOD.MISC.NAME]: {
+      [COMMON_NAMES.FOOD.MISC.FUNGI.NAME]: {
+        amountToEat: 1,
+        multiplyer: 10,
+        resources: {
+          Biomass: 1,
+          Ligin: 1,
+          Cellulose: 1,
+        },
+        genes: {
+          FungiGene: 1,
+        }
       },
-      genes: {
-        FishGene: 1,
-      }
+      [COMMON_NAMES.FOOD.MISC.SENTIENTS.NAME]: {
+        amountToEat: 1,
+        multiplyer: 1,
+        resources: {
+          Biomass: 5.477e+7,
+          Protein: 7e+1,
+          Fat: 1.4e+7,
+          Bones: 9.8e+6,
+          Brains: 1.3e+6,
+        },
+        genes: {
+          SentientsGene: 1,
+        }
+      },
     },
-    Animals: {
-      amountToEat: 1,
-      multiplyer: 20,
-      resources: {
-        Biomass: 100,
-        Protein: 100, // Scaled to match Biomass
-        Fat: 100, // Scaled to match Biomass
-        Bones: 100, // Scaled to match Biomass
-      },
-      genes: {
-        AnimalsGene: 1,
-      }
-    },
-    Humans: {
-      amountToEat: 1,
-      multiplyer: 1,
-      resources: {
-        Biomass: 5.477e+7,
-        Protein: 7e+1, // Scaled to match Biomass
-        Fat: 1.4e+7, // Scaled to match Biomass
-        Bones: 9.8e+6, // Scaled to match Biomass
-        Brains: 1.3e+6, // Scaled to match Biomass
-      },
-      genes: {
-        HumansGene: 1,
-      }
-    },
-    Trees: {
-      amountToEat: 1,
-      multiplyer: 10,
-      resources: {
-        Biomass: 7e+8,
-        Ligin: 1e+8, // Scaled to match Biomass
-        Cellulose: 2e+8, // Scaled to match Biomass
-      },
-      genes: {
-        TreesGene: 1,
-      }
-    },
-    Birds: {
-      amountToEat: 1,
-      multiplyer: 10,
-      resources: {
-        Biomass: 150,
-        Protein: 150, // Scaled to match Biomass
-        Fat: 150, // Scaled to match Biomass
-        pneumatisedBones: 150, // Scaled to match Biomass
-      },
-      genes: {
-        BirdsGene: 1,
-      }
-    }
   }
 };

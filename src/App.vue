@@ -14,6 +14,7 @@ import { calculateArea, formatNumber, calculateHeartPosition, eatFood, heartBeat
 import { researchInfo } from '@/assets/js/research.js';
 import ChildComponent from './components/popups.vue';
 import tooltip from './components/tooltip.vue';
+import { COMMON_NAMES } from './assets/js/definitions';
 
 
 //init some variables
@@ -33,12 +34,12 @@ function mainLoop() {
     gameData.value.date.timer = 0;// reset counter
     //add to hour every time then add to day when hour is 24 and year when day is 365
     tickHour();
-    // add to each harvest resource based on harvest multiplyer and current area
+    // add to each food based on harvest multiplyer and current area
     gameData.value.hive.forEach(hive => {
-      for (const resourceKey in hive.food) {
+      for (const resourceKey in hive[COMMON_NAMES.FOOD.NAME]) {
         // add the harvest if there is less of the harvest than the total area times multiplyer
-        if (hive.food[resourceKey].amount < hive.food[resourceKey].max) {
-          hive.food[resourceKey].amount += Math.round(foodValues[resourceKey] * hive.area/1000000);
+        if (hive[COMMON_NAMES.FOOD.NAME][resourceKey].amount < hive[COMMON_NAMES.FOOD.NAME][resourceKey].max) {
+          hive[COMMON_NAMES.FOOD.NAME][resourceKey].amount += Math.round(foodValues[resourceKey] * hive.area/1000000);
         }
       }
     });
@@ -53,23 +54,6 @@ function mainLoop() {
    
     // do stuff every second
   }
-
-
-  // gameData.value.hive.forEach(hive => {
-  //   // Calculate the radius increment based on growth.persecond
-  //   // Update the growth amount
-  //   if  ( hive.growth.amount < hive.growth.max && hive.resources.Biomass.amount >= hive.area/biomassAreaMultiplyer) {
-  //     hive.growth.amount += hive.growth.pertick;
-  //     hive.resources.Biomass.amount -= hive.area/biomassAreaMultiplyer;
-  //     heartBeat();
-  //   } 
-  //   // heartbeat - everytime the hive heart tickets to 100%
-  //   if ( hive.growth.amount >= hive.growth.max && hive.resources.Biomass.amount >= hive.growth.pertick && hive.area < hive.maxArea) {
-  //       hive.growth.amount = 0; // reset progres bar
-  //       hive.radius += hive.radiusPerBeat; // increase radius by radius per beat
-  //       hive.area = Math.min(hive.maxArea, calculateArea(hive.radius)); // calculate new area
-  //   } 
-  // });
 }
 // Create a ref to store the width of the element
 const heartbeatWidth = ref(0);
@@ -135,24 +119,28 @@ onMounted(() => {
                 </tbody>
               </table>
               <div class="hiveResources">
-                <div v-for="(resource, key) in hive.resources">
-                  <div v-if="resource.show == true">
-                    <span>{{ key }}</span>
-                    <span>{{ formatNumber(resource.amount, "mg") }}</span>
+                  <div v-for="(resource, key) in hive[COMMON_NAMES.RESOURCES.NAME]">
+                    <div v-if="resource.show == true">
+                        {{ key }}: {{ resource.amount }}
+                      </div>
                   </div>
-                </div>
               </div>
               <p>-</p>
               <ul>
-                <li class="harvest" v-for="(food, key) in hive.food">
-                  <div v-if="food.show == true">
-                    <span>{{ key }}</span>
-                    <span>{{ formatNumber(food.amount)}}</span>
-                    <!--show max harvest value in tooltip -->
-                    <span>{{ formatNumber(food.max)}}</span>
-                    <button v-if="key === 'Plants'" @click="eatFood(hive, key)">Eat</button>
-                  </div>        
-                </li>
+                <template v-for="(category, key) in hive[COMMON_NAMES.FOOD.NAME]">
+                  <li v-if="category.show === true">
+                  {{ key }}
+                    <ul>
+                      <template v-for="(resource, subKey) in category">
+                        <li v-if="resource.show === true">
+                          <span>{{ subKey }} :</span>
+                          <span>{{ formatNumber(resource.amount) }}</span> 
+                          <button @click="eatFood(key, hive, subKey)">Eat</button>
+                        </li>
+                      </template>
+                    </ul>
+                  </li>
+                </template>
               </ul>
           </div>
         </div>
@@ -181,17 +169,13 @@ onMounted(() => {
         <div v-show="tabMapping.hives">
           <h3>Mutations are here</h3>
         </div>
-        <!-- Mutations buff the creatures, make them breed quicker, can turn them into soldiers etc -->
         <div v-show="tabMapping.muations">
             <h3>Mutations are here</h3>
         </div>
-        <!-- Research unlocks everything -->
         <div v-show="tabMapping.research">
           <div v-for="(research, key) in researchInfo.tierBiome">
               <tooltip class="purchaseButton" v-if="gameData.research.tierBiome[key].available && !gameData.research.tierBiome[key].unlocked">
-              <!-- Content goes here, it could be a button, text, an image, etc. -->
                 <button @click="unlockResearch(key)">{{ key }}</button>
-                <!-- Tooltip content goes here using the tooltip slot -->
                 <template #tooltip>
                     <h3>{{ key }}</h3>
                     <span>{{ research.description }}</span>
@@ -203,13 +187,8 @@ onMounted(() => {
                     </ul>
                 </template>
               </tooltip>
-              <!-- <button @click="unlockResearch(key)">{{ key }}</button> -->
-              <!-- <div class="tooltip">
-
-              </div> -->
           </div>
         </div>
-        <!-- Growing creates new things like 'buildings' the do things -->
         <div v-show="tabMapping.grow">
           <h3>Growing is here</h3>
           <button @click="addHive('Desert')" id="addHive">add hive</button>
@@ -221,20 +200,17 @@ onMounted(() => {
   <div id="devArea">
     <div v-if="showDev" id="dev">
       <h4>I am some debug info</h4>
-      <!--debug tool set heart value to max -->
-      <button @click="gameData.heart.amount = gameData.heart.max">Max heart</button>
-      <!-- button to increase radius per beat by 100 -->
-      <button @click="gameData.hive[0].radiusPerBeat += 100">Increase radius per beat 100</button>
-      <!-- button to increase radius per beat by 1000 -->
-      <button @click="gameData.hive[0].radiusPerBeat += 1000">Increase radius per beat 1000</button>
-      <!-- button to increase radius per beat by 10000 -->
-      <button @click="gameData.hive[0].radiusPerBeat += 10000">Increase radius per beat 10000</button>
-      <!-- button to increase radius per beat by 100000 -->
-      <button @click="gameData.hive[0].radiusPerBeat += 1000000000">Increase radius per beat 1000000000</button>
-
-      <pre>{{ gameData }}</pre>
-      <!-- <pre>{{ JSON.stringify(tabMapping, null, 2) }}</pre>
-      <pre>{{ JSON.stringify(tabMapping, null, 2) }}</pre> -->
+      <div class="flexContainerHorizontal">
+        <div class="buttons">
+        <button @click="heartBeat()">Tick</button>
+        <button @click="gameData.heart.amount = gameData.heart.max">Max heart</button>
+        <button @click="gameData.hive[0].radiusPerBeat += 100">Increase radius per beat 100</button>
+        <button @click="gameData.hive[0].radiusPerBeat += 1000">Increase radius per beat 1000</button>
+        <button @click="gameData.hive[0].radiusPerBeat += 10000">Increase radius per beat 10000</button>
+        <button @click="gameData.hive[0].radiusPerBeat += 1000000000">Increase radius per beat 1000000000</button>
+        </div>
+        <pre>{{ gameData }}</pre>
+      </div>
     </div>
     <button @click="showDev = !showDev">Toggle Dev</button>
   </div>
@@ -421,13 +397,21 @@ onMounted(() => {
   }
   #dev {
     position: relative;
-    width: 250px;
-    height: 300px;
+    width: 700px;
+    height: 700px;
     background: lightgrey;
     bottom: 0;
     right: 0;
     color: black;
-    overflow-y: scroll;
+    overflow-y: auto;
+  }
+  #dev .buttons {
+    flex: 25;
+  }
+  #dev pre {
+    flex: 75;
+    height: 680px;
+    overflow-y: auto;
   }
 </style>
 

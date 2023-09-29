@@ -1,6 +1,7 @@
 import { gameData, tabMapping } from '@/assets/js/gameData.js'
 import { researchInfo } from '@/assets/js/research.js';
 import { foodValues } from "@/assets/js/resources.js";
+import { COMMON_NAMES } from './definitions';
 
 // function to unlock research
 export function unlockResearch(researchKey) {
@@ -93,51 +94,49 @@ export function calculateHeartPosition(number, maxnumber, width) {
     return  number*(width / maxnumber) - 7
   }
 // Define the eatFood function
-export function eatFood(item, key, amount) {
+export function eatFood(category, hive, food, amount) {
   let amounttoeat;
   if (amount === undefined) {
   // get the amount from the foodValues amounttoeat
-    amounttoeat = foodValues.food[key].amountToEat;
+    amounttoeat = foodValues[COMMON_NAMES.FOOD.NAME][category][food].amountToEat;
   } else {
     amounttoeat = amount;
   }
   //check if there is enough food to devourer
-  if (item.food[key].amount > 0) {
-    let howMuch = Math.min(amounttoeat, item.food[key].amount);
-    item.food[key].amount -= howMuch;
+  if (hive[COMMON_NAMES.FOOD.NAME][category][food].amount > 0) {
+    let howMuch = Math.min(amounttoeat, hive[COMMON_NAMES.FOOD.NAME][category][food].amount);
+    hive[COMMON_NAMES.FOOD.NAME][category][food].amount -= howMuch;
     // set foodUnlocked to true for current food
-    gameData.value.foodUnlocked[key] = true;
+    gameData.value.foodUnlocked[food] = true;
     
-
-
     // Check if the food exists in foodValues
-    if (foodValues.food[key]) {
-      for (const resourceKey in foodValues.food[key].resources) {
+    if (foodValues.food[food]) {
+      for (const resourceKey in foodValues.food[food][COMMON_NAMES.RESOURCES.NAME]) {
         // Check if the resource exists in the hive
-        if (item.resources[resourceKey]) {
+        if (hive[COMMON_NAMES.RESOURCES.NAME][resourceKey]) {
           // Add the resource to the hive
-          item.resources[resourceKey].amount += foodValues.food[key].resources[resourceKey] * howMuch;
+            hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].amount += foodValues.food[food][COMMON_NAMES.RESOURCES.NAME][resourceKey] * howMuch;
           // set the resource to show if it is greater than 0
-          if(item.resources[resourceKey].amount > 0 && item.resources[resourceKey].show == false) {
-            item.resources[resourceKey].show = true;
+          if(hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].amount > 0 && hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].show == false) {
+            hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].show = true;
           }
         } else {
           console.error(`Resource '${resourceKey}' not found in hive resources.`);
         }
       }
       // for each gene in foodValues add the gene to the hive
-      for (const geneKey in foodValues.food[key].genes) {
+      for (const geneKey in foodValues[COMMON_NAMES.FOOD.NAME][food].genes) {
         // Check if the gene exists in the hive
-        if (gameData.value.genes[geneKey]) {
+        if (gameData.value[COMMON_NAMES.GENES.NAME][geneKey]) {
           // Add the gene to the hive
-          // gameData.value.genes[geneKey] += foodValues.food[key].genes[geneKey] * amounttoeat * (howMuch/amounttoeat);
-          gameData.value.genes[geneKey] += foodValues.food[key].genes[geneKey] * howMuch;
+          // gameData.value.genes[geneKey] += foodValues.food[food].genes[geneKey] * amounttoeat * (howMuch/amounttoeat);
+          gameData.value[COMMON_NAMES.GENES.NAME][geneKey] += foodValues[COMMON_NAMES.FOOD.NAME][food][COMMON_NAMES.GENES.NAME][geneKey] * howMuch;
         } else {
           console.error(`Gene '${geneKey}' not found in hive genes.`);
         }
       }
     } else {
-      console.error(`Food type '${key}' not found in foodValues.`);
+      console.error(`Food type '${food}' not found in foodValues.`);
     }
   }
 }
@@ -145,10 +144,11 @@ export function eatFood(item, key, amount) {
 export function growFood() {
 
 }
+
 export function heartBeat() {
   // checks if there is enough biomass each tick
   const hasEnoughBiomass = gameData.value.hive.some(hive => {
-    return hive.resources.Biomass.amount >= gameData.value.heart.pertick;
+    return hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount >= gameData.value.heart.pertick;
   });
 
   // things that happen if there is enough biomass
@@ -160,10 +160,10 @@ export function heartBeat() {
 
       // Check each hive if they have enough biomass then tick down.
       gameData.value.hive.forEach(hive => {
-        if (hive.resources.Biomass.amount >= gameData.value.heart.pertick) {
+        if (hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount >= gameData.value.heart.pertick) {
           // what happens if there is enough
           //increase radius using pertick
-          hive.resources.Biomass.amount -= gameData.value.heart.pertick;
+          hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount -= gameData.value.heart.pertick;
           hive.heart.dyingState = false          
         } else {
           // what happens if there isn't
@@ -178,19 +178,25 @@ export function heartBeat() {
       for (const hive of gameData.value.hive) {
         hive.radius += hive.radiusPerBeat;
         // set hive previous area to current area
-        hive.previousArea = hive.area;
+        hive.previousArea = hive.previousArea;
         // calculate new area based on radius
         hive.area = Math.min(hive.maxArea, calculateArea(hive.radius));
         let difference = hive.area - hive.previousArea;
-
         // iterates through each food on 
-        for (const foodKey in hive.food) {
-          // increase each harvest amount by the difference in area
-          hive.food[foodKey].amount += Math.round((difference * foodValues.food[foodKey].multiplyer)*foodValues.Overall);
-          if(hive.food[foodKey].amount > 0 && hive.food[foodKey].show == false) {
-            hive.food[foodKey].show = true;
+        for (const category in hive[COMMON_NAMES.FOOD.NAME]) {
+          
+          for (const foodKey in hive[COMMON_NAMES.FOOD.NAME][category]) {
+            if (foodKey != "show") {
+              // increase each harvest amount by the difference in area
+                let amountToAdd = Math.round((difference * foodValues[COMMON_NAMES.FOOD.NAME][category][foodKey].multiplyer)*foodValues.Overall );
+                hive[COMMON_NAMES.FOOD.NAME][category][foodKey].amount += amountToAdd;
+              if(hive[COMMON_NAMES.FOOD.NAME][category][foodKey].amount > 0 && hive[COMMON_NAMES.FOOD.NAME][category][foodKey].show == false) {
+                hive[COMMON_NAMES.FOOD.NAME][category][foodKey].show = true;
+              }
+            }
           }
         }
+        
         growFood();
       }
       // adds to each harvest max based on area using forEach vue

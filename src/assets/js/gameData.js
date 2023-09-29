@@ -1,6 +1,7 @@
 import { ref, computed } from "vue";
 import { initHiveForest } from "@/assets/js/hives.js";
 import { researchData } from "@/assets/js/research.js";
+import { COMMON_NAMES } from "@/assets/js/definitions.js";
 
 // Define the gameData object
 export const gameData = ref({
@@ -13,61 +14,62 @@ export const gameData = ref({
         multiplyer: 1,
         dyingState: false,
       },
-    resources: {
-        Biomass: 
-          {
-            amount: 0,
-            show: true,
-          }, 
-        Fibre: 
-          {
-            amount: 0, 
-            show: true,
-          },
-        Glucose:
-          {
-            amount: 0,
-            show: true,
-          },
-        Chitin:
-          {
-            amount: 0,
-            show: false,
-          },
-        Protein:
-          {
-            amount: 0,
-            show: false,
-          },
-        Fat:
-          {
-            amount: 0,
-            show: false,
-          },
-        Bones:
-          {
-            amount: 0,
-            show: false,
-          },
-        Brains:
-          {
-            amount: 0,
-            show: false,
-          },
-        Ligin:
-          {
-            amount: 0,
-            show: false,
-          },  
+    [COMMON_NAMES.RESOURCES.NAME]: {
+        [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: {
+          amount: 0,
+          show: true,
+        },
+        [COMMON_NAMES.RESOURCES.FIBRE.NAME]: {
+          amount: 0,
+          show: true,
+        },
+        [COMMON_NAMES.RESOURCES.GLUCOSE.NAME]: {
+          amount: 0,
+          show: true,
+        },
+        [COMMON_NAMES.RESOURCES.CHITIN.NAME]: {
+          amount: 0,
+          show: false,
+        },
+        [COMMON_NAMES.RESOURCES.PROTEIN.NAME]: {
+          amount: 0,
+          show: false,
+        },
+        [COMMON_NAMES.RESOURCES.FAT.NAME]: {
+          amount: 0,
+          show: false,
+        },
+        [COMMON_NAMES.RESOURCES.BONES.NAME]: {
+          amount: 0,
+          show: false,
+        },
+        [COMMON_NAMES.RESOURCES.BRAINS.NAME]: {
+          amount: 0,
+          show: false,
+        },
+        [COMMON_NAMES.RESOURCES.LIGIN.NAME]: {
+          amount: 0,
+          show: false,
+        },
+        [COMMON_NAMES.RESOURCES.CELLULOSE.NAME]: {
+          amount: 0,
+          show: false,
+        },
+        [COMMON_NAMES.RESOURCES.PNEUMATISED_BONES.NAME]: {
+          amount: 0,
+          show: false,
+        },
       },
     // object that contains all of the different genes and the amount of each
-    genes: {
-      PlantsGene: 1,
-      HumansGene: 1,
-      AnimalsGene: 1,
-      InsectsGene: 1,
-      Treesgene: 1,
-      BirdsGene: 1,
+    [COMMON_NAMES.GENES.NAME]: {
+      [COMMON_NAMES.FOOD.FLORA.HERBACEOUS.GENE]: 0,
+      [COMMON_NAMES.FOOD.FLORA.ARBOREAL.GENE]: 0,
+      [COMMON_NAMES.FOOD.FAUNA.ARTHROPODS.GENE]: 0,
+      [COMMON_NAMES.FOOD.FAUNA.MAMMALIA.GENE]: 0,
+      [COMMON_NAMES.FOOD.FAUNA.REPTILIA.GENE]: 0,
+      [COMMON_NAMES.FOOD.FAUNA.AVES.GENE]: 0,
+      [COMMON_NAMES.FOOD.MISC.FUNGI.GENE]: 0,
+      [COMMON_NAMES.FOOD.MISC.SENTIENTS.GENE]: 0,
     },
     date: 
       {
@@ -79,26 +81,32 @@ export const gameData = ref({
     },
     research: JSON.parse(JSON.stringify(researchData)),
     foodUnlocked: {
-      Plants: false,
-      Insects: false,
-      Fish: false,
-      Animals: false,
-      Birds: false,
-      Trees: false,
-      Humans: false,
+      [COMMON_NAMES.FOOD.FLORA.HERBACEOUS.NAME]: false,
+      [COMMON_NAMES.FOOD.FLORA.ARBOREAL.NAME]: false,
+      [COMMON_NAMES.FOOD.FAUNA.ARTHROPODS.NAME]: false,
+      [COMMON_NAMES.FOOD.FAUNA.MAMMALIA.NAME]: false,
+      [COMMON_NAMES.FOOD.FAUNA.REPTILIA.NAME]: false,
+      [COMMON_NAMES.FOOD.FAUNA.AVES.NAME]: false,
+      [COMMON_NAMES.FOOD.FAUNA.AQUATIC.NAME]: false,
+      [COMMON_NAMES.FOOD.MISC.FUNGI.NAME]: false,
+      [COMMON_NAMES.FOOD.MISC.SENTIENTS.NAME]: false,
     },
     totalEaten: {
-      Flora: {
-        Herbaceous: 0,
-        Arthropods: 0,
+      [COMMON_NAMES.FOOD.FLORA.NAME]: {
+        [COMMON_NAMES.FOOD.FLORA.HERBACEOUS.NAME]: 0,
+        [COMMON_NAMES.FOOD.FLORA.ARBOREAL.NAME]: 0,
       },
-      Fauna: {      
-        Mammalia: 0,
-        Reptilia: 0,
-        Aves: 0,
+      [COMMON_NAMES.FOOD.FAUNA.NAME]: {
+        [COMMON_NAMES.FOOD.FAUNA.ARTHROPODS.NAME]: 0,
+        [COMMON_NAMES.FOOD.FAUNA.MAMMALIA.NAME]: 0,
+        [COMMON_NAMES.FOOD.FAUNA.REPTILIA.NAME]: 0,
+        [COMMON_NAMES.FOOD.FAUNA.AVES.NAME]: 0,
+        [COMMON_NAMES.FOOD.FAUNA.AQUATIC.NAME]: 0,
       },
-      Fungi: 0,      
-      Sentients: 0,
+      [COMMON_NAMES.FOOD.MISC.NAME]: {
+        [COMMON_NAMES.FOOD.MISC.FUNGI.NAME]: 0,
+        [COMMON_NAMES.FOOD.MISC.SENTIENTS.NAME]: 0,
+      },
     },
 });
 
