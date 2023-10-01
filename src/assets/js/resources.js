@@ -1,12 +1,12 @@
 import { COMMON_NAMES } from "@/assets/js/definitions.js";
 
 export const foodValues = {
-  Overall: 0.00001,
+  Overall: 0.000001,
   [COMMON_NAMES.FOOD.NAME]: {
     [COMMON_NAMES.FOOD.FLORA.NAME]: {
       [COMMON_NAMES.FOOD.FLORA.HERBACEOUS.NAME]: {
         amountToEat: 100,
-        multiplyer: 100000,
+        multiplyer: 10000,
         resources: {
           Biomass: 1,
           Fibre: 1,

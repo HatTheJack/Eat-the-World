@@ -19,7 +19,7 @@ import { COMMON_NAMES } from './assets/js/definitions';
 
 //init some variables
 // Define a variable to store the interval ID
-const loopInterval = 10;
+const loopInterval = 1;
 let mainGameLoop;
 
 
@@ -27,7 +27,9 @@ let mainGameLoop;
 function mainLoop() {
   // let biomassAreaMultiplyer = 500;
   // let fibreAreaMultiplyer = 1.5;
-  gameData.value.date.timer++;
+  if (gameData.value.heart.amount == gameData.value.heart.timer) {
+    gameData.value.date.timer++;
+  }
   heartBeat();
 
   if (gameData.value.date.timer == 100) {
@@ -121,7 +123,7 @@ onMounted(() => {
               <div class="hiveResources">
                   <div v-for="(resource, key) in hive[COMMON_NAMES.RESOURCES.NAME]">
                     <div v-if="resource.show == true">
-                        {{ key }}: {{ resource.amount }}
+                        {{ key }}: {{ formatNumber(resource.amount, 'mg') }}
                       </div>
                   </div>
               </div>

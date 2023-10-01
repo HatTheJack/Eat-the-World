@@ -1,7 +1,8 @@
 import { gameData, tabMapping } from '@/assets/js/gameData.js'
 import { researchInfo } from '@/assets/js/research.js';
 import { foodValues } from "@/assets/js/resources.js";
-import { COMMON_NAMES } from './definitions';
+import { COMMON_NAMES } from '@/assets/js/definitions';
+import { initHiveForest } from '@/assets/js/hives';
 
 // function to unlock research
 export function unlockResearch(researchKey) {
@@ -110,12 +111,13 @@ export function eatFood(category, hive, food, amount) {
     gameData.value.foodUnlocked[food] = true;
     
     // Check if the food exists in foodValues
-    if (foodValues.food[food]) {
-      for (const resourceKey in foodValues.food[food][COMMON_NAMES.RESOURCES.NAME]) {
+    if (foodValues[COMMON_NAMES.FOOD.NAME][category][food]) {
+      for (const resourceKey in foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.RESOURCES.NAME]) {
         // Check if the resource exists in the hive
         if (hive[COMMON_NAMES.RESOURCES.NAME][resourceKey]) {
+          console.log(resourceKey);
           // Add the resource to the hive
-            hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].amount += foodValues.food[food][COMMON_NAMES.RESOURCES.NAME][resourceKey] * howMuch;
+            hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].amount += foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.RESOURCES.NAME][resourceKey] * howMuch;
           // set the resource to show if it is greater than 0
           if(hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].amount > 0 && hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].show == false) {
             hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].show = true;
@@ -125,12 +127,12 @@ export function eatFood(category, hive, food, amount) {
         }
       }
       // for each gene in foodValues add the gene to the hive
-      for (const geneKey in foodValues[COMMON_NAMES.FOOD.NAME][food].genes) {
+      for (const geneKey in foodValues[COMMON_NAMES.FOOD.NAME][category][food].genes) {
         // Check if the gene exists in the hive
-        if (gameData.value[COMMON_NAMES.GENES.NAME][geneKey]) {
+        if (gameData.value[COMMON_NAMES.GENES.NAME].hasOwnProperty(geneKey)) {
           // Add the gene to the hive
           // gameData.value.genes[geneKey] += foodValues.food[food].genes[geneKey] * amounttoeat * (howMuch/amounttoeat);
-          gameData.value[COMMON_NAMES.GENES.NAME][geneKey] += foodValues[COMMON_NAMES.FOOD.NAME][food][COMMON_NAMES.GENES.NAME][geneKey] * howMuch;
+          gameData.value[COMMON_NAMES.GENES.NAME][geneKey] += foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.GENES.NAME][geneKey] * howMuch;
         } else {
           console.error(`Gene '${geneKey}' not found in hive genes.`);
         }
@@ -187,11 +189,12 @@ export function heartBeat() {
           
           for (const foodKey in hive[COMMON_NAMES.FOOD.NAME][category]) {
             if (foodKey != "show") {
-              // increase each harvest amount by the difference in area
+              // increase each food amount by the difference in area
                 let amountToAdd = Math.round((difference * foodValues[COMMON_NAMES.FOOD.NAME][category][foodKey].multiplyer)*foodValues.Overall );
                 hive[COMMON_NAMES.FOOD.NAME][category][foodKey].amount += amountToAdd;
               if(hive[COMMON_NAMES.FOOD.NAME][category][foodKey].amount > 0 && hive[COMMON_NAMES.FOOD.NAME][category][foodKey].show == false) {
                 hive[COMMON_NAMES.FOOD.NAME][category][foodKey].show = true;
+                hive[COMMON_NAMES.FOOD.NAME][category].show = true;
               }
             }
           }
