@@ -94,54 +94,126 @@ export function formatNumber(number, unit) {
 export function calculateHeartPosition(number, maxnumber, width) {
     return  number*(width / maxnumber) - 7
   }
-// Define the eatFood function
-export function eatFood(category, hive, food, amount) {
-  let amounttoeat;
-  if (amount === undefined) {
-  // get the amount from the foodValues amounttoeat
-    amounttoeat = foodValues[COMMON_NAMES.FOOD.NAME][category][food].amountToEat;
-  } else {
-    amounttoeat = amount;
-  }
-  //check if there is enough food to devourer
-  if (hive[COMMON_NAMES.FOOD.NAME][category][food].amount > 0) {
-    let howMuch = Math.min(amounttoeat, hive[COMMON_NAMES.FOOD.NAME][category][food].amount);
-    hive[COMMON_NAMES.FOOD.NAME][category][food].amount -= howMuch;
-    // set foodUnlocked to true for current food
-    gameData.value.foodUnlocked[food] = true;
-    
-    // Check if the food exists in foodValues
-    if (foodValues[COMMON_NAMES.FOOD.NAME][category][food]) {
-      for (const resourceKey in foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.RESOURCES.NAME]) {
-        // Check if the resource exists in the hive
-        if (hive[COMMON_NAMES.RESOURCES.NAME][resourceKey]) {
-          console.log(resourceKey);
-          // Add the resource to the hive
-            hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].amount += foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.RESOURCES.NAME][resourceKey] * howMuch;
-          // set the resource to show if it is greater than 0
-          if(hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].amount > 0 && hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].show == false) {
-            hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].show = true;
-          }
-        } else {
-          console.error(`Resource '${resourceKey}' not found in hive resources.`);
-        }
-      }
-      // for each gene in foodValues add the gene to the hive
-      for (const geneKey in foodValues[COMMON_NAMES.FOOD.NAME][category][food].genes) {
-        // Check if the gene exists in the hive
-        if (gameData.value[COMMON_NAMES.GENES.NAME].hasOwnProperty(geneKey)) {
-          // Add the gene to the hive
-          // gameData.value.genes[geneKey] += foodValues.food[food].genes[geneKey] * amounttoeat * (howMuch/amounttoeat);
-          gameData.value[COMMON_NAMES.GENES.NAME][geneKey] += foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.GENES.NAME][geneKey] * howMuch;
-        } else {
-          console.error(`Gene '${geneKey}' not found in hive genes.`);
-        }
+
+// function to check if a variable is undefined  Returns default value if true
+function checkDefault(value, defaultValue) {
+  return value === undefined ? defaultValue : value;
+}
+
+// add resource function
+export const hiveManager = {
+  addResource(hive, category, resource, amount) {
+    // console.log(hive, category, resource, amount);
+    // Check if the resource exists in the hive
+    if (hive[COMMON_NAMES.RESOURCES.NAME][resource]) {
+      // Add the resource to the hive
+        hive[COMMON_NAMES.RESOURCES.NAME][resource].amount += amount;
+      // set the resource to show if it is greater than 0
+      if(hive[COMMON_NAMES.RESOURCES.NAME][resource].amount > 0 && hive[COMMON_NAMES.RESOURCES.NAME][resource].show == false) {
+        hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].show = true;
       }
     } else {
-      console.error(`Food type '${food}' not found in foodValues.`);
+      console.error(`Resource '${resource}' not found in hive resources.`);
     }
-  }
+  },
+
+  addGenes(hive, category, gene, amount) {
+    if (gameData.value[COMMON_NAMES.GENES.NAME].hasOwnProperty(gene)) {
+      // Add the gene to the hive
+      gameData.value[COMMON_NAMES.GENES.NAME][gene] += amount;
+    } else {
+      console.error(`Gene '${gene}' not found in hive genes.`);
+    }
+  },
+
+  _addFoodResources(hive, category, food, multiplyer) {
+    console.log(foodValues[COMMON_NAMES.FOOD.NAME][category][food]);
+    for (const resourceKey in foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.RESOURCES.NAME]) {
+      let totalResources = foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.RESOURCES.NAME][resourceKey] * multiplyer;
+      console.log(resourceKey);
+      this.addResource(hive, category, resourceKey, totalResources);
+    }
+  },
+
+  _addFoodGenes(hive, category, food, multiplyer) {
+    for (const geneKey in foodValues[COMMON_NAMES.FOOD.NAME][category][food].genes) {
+      this.addGenes(hive, category, geneKey, foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.GENES.NAME][geneKey] * multiplyer);
+    }
+  },
+
+  _eat(hive, category, food, amount) {
+    let amountEaten = Math.min(amount, hive[COMMON_NAMES.FOOD.NAME][category][food].amount);
+    hive[COMMON_NAMES.FOOD.NAME][category][food].amount -= amountEaten;
+    // set foodUnlocked to true for current food
+    gameData.value.foodUnlocked[food] = true;
+  },
+
+  eatFood(hive, category, food, amount) {
+    let amountEaten = checkDefault(amount, foodValues[COMMON_NAMES.FOOD.NAME][category][food].amountToEat);
+
+    //check if there is enough food to devour
+    if (hive[COMMON_NAMES.FOOD.NAME][category][food].amount > 0) {
+      this._eat(hive, category, food, amountEaten);
+
+      // Check if the food exists in foodValues
+      if (foodValues[COMMON_NAMES.FOOD.NAME][category][food]) {
+        this._addFoodResources(hive, category, food, amountEaten);
+        this._addFoodGenes(hive, category, food, amountEaten);
+      } else {
+        console.error(`Food type '${food}' not found in foodValues.`);
+      }
+    }
+  },
 }
+
+// Define the eatFood function
+// export function eatFood(category, hive, food, amount) {
+//   let amounttoeat;
+//   if (amount === undefined) {
+//   // get the amount from the foodValues amounttoeat
+//     amounttoeat = foodValues[COMMON_NAMES.FOOD.NAME][category][food].amountToEat;
+//   } else {
+//     amounttoeat = amount;
+//   }
+//   //check if there is enough food to devour
+//   if (hive[COMMON_NAMES.FOOD.NAME][category][food].amount > 0) {
+//     let howMuch = Math.min(amounttoeat, hive[COMMON_NAMES.FOOD.NAME][category][food].amount);
+//     hive[COMMON_NAMES.FOOD.NAME][category][food].amount -= howMuch;
+//     // set foodUnlocked to true for current food
+//     gameData.value.foodUnlocked[food] = true;
+    
+//     // Check if the food exists in foodValues
+//     if (foodValues[COMMON_NAMES.FOOD.NAME][category][food]) {
+//       for (const resourceKey in foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.RESOURCES.NAME]) {
+//         // Check if the resource exists in the hive
+//         if (hive[COMMON_NAMES.RESOURCES.NAME][resourceKey]) {
+//           console.log(resourceKey);
+//           // Add the resource to the hive
+//             hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].amount += foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.RESOURCES.NAME][resourceKey] * howMuch;
+//           // set the resource to show if it is greater than 0
+//           if(hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].amount > 0 && hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].show == false) {
+//             hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].show = true;
+//           }
+//         } else {
+//           console.error(`Resource '${resourceKey}' not found in hive resources.`);
+//         }
+//       }
+//       // for each gene in foodValues add the gene to the hive
+//       for (const geneKey in foodValues[COMMON_NAMES.FOOD.NAME][category][food].genes) {
+//         // Check if the gene exists in the hive
+//         if (gameData.value[COMMON_NAMES.GENES.NAME].hasOwnProperty(geneKey)) {
+//           // Add the gene to the hive
+//           // gameData.value.genes[geneKey] += foodValues.food[food].genes[geneKey] * amounttoeat * (howMuch/amounttoeat);
+//           gameData.value[COMMON_NAMES.GENES.NAME][geneKey] += foodValues[COMMON_NAMES.FOOD.NAME][category][food][COMMON_NAMES.GENES.NAME][geneKey] * howMuch;
+//         } else {
+//           console.error(`Gene '${geneKey}' not found in hive genes.`);
+//         }
+//       }
+//     } else {
+//       console.error(`Food type '${food}' not found in foodValues.`);
+//     }
+//   }
+// }
 // function to grow each food based on the number of growths built
 export function growFood() {
 
@@ -234,16 +306,4 @@ export function addHive(biome, totalArea) {
   newHive.biome = biome; // You can set the biome as needed
 
   gameData.value.hive.push(newHive);
-}
-
-export function tabs(content) {
-  // Set all properties to false
-  for (const key in tabMapping.value) {
-    tabMapping.value[key] = false;
-  }
-
-  // Set the corresponding variable to true based on the content input
-  if (tabMapping.value.hasOwnProperty(content)) {
-    tabMapping.value[content] = true;
-  }
 }

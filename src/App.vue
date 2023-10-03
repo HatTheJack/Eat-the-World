@@ -8,31 +8,38 @@ git subtree push --prefix dist origin gh_pages
 <script setup>
 import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 // import { initHiveForest } from '@/assets/js/hives.js'
-import { gameData, tabMapping, showDev } from '@/assets/js/gameData.js'
+import { COMMON_NAMES } from '@/assets/js/definitions';
+import { gameData } from '@/assets/js/gameData.js'
 import { foodValues } from "@/assets/js/resources.js";
-import { calculateArea, formatNumber, calculateHeartPosition, eatFood, heartBeat, tickHour, addHive, tabs, unlockResearch } from '@/assets/js/functions.js';
+import { calculateArea, formatNumber, calculateHeartPosition, hiveManager, heartBeat, tickHour, addHive, unlockResearch } from '@/assets/js/functions.js';
 import { researchInfo } from '@/assets/js/research.js';
 import ChildComponent from './components/popups.vue';
-import tooltip from './components/tooltip.vue';
-import { COMMON_NAMES } from './assets/js/definitions';
+import devArea from '@/components/dev.vue';
+import hiveInfo from '@/components/hiveinfo.vue';
+import mainMenu from '@/components/mainmenu.vue';
+import topbar from '@/components/topbar.vue';
+import hiveTotals from '@/components/totals.vue';
+import tooltip from '@/components/tooltip.vue';
+
 
 
 //init some variables
 // Define a variable to store the interval ID
-const loopInterval = 1;
 let mainGameLoop;
+const loopInterval = 10;
 
 
 // main loop function
 function mainLoop() {
   // let biomassAreaMultiplyer = 500;
   // let fibreAreaMultiplyer = 1.5;
-  if (gameData.value.heart.amount == gameData.value.heart.timer) {
-    gameData.value.date.timer++;
+  if (gameData.value.heart.amount == gameData.value.date.timer) {
+    heartBeat();
   }
-  heartBeat();
-
-  if (gameData.value.date.timer == 100) {
+  // heartBeat();
+  if (gameData.value.date.timer < 100) {
+    gameData.value.date.timer++;
+  } else if (gameData.value.date.timer == 100) {
     gameData.value.date.timer = 0;// reset counter
     //add to hour every time then add to day when hour is 24 and year when day is 365
     tickHour();
@@ -79,16 +86,16 @@ onMounted(() => {
   <!-- <child-component /> -->
   <!-- top information menu in game date and time etc -->
   <div class="flexContainerVertical">
-    <div id="topMenu" class="">
+    <topbar/>
+    <!-- <div id="topMenu" class="">
       <div id="gameDate">
         <span>Year: {{ gameData.date.year }}</span>
         <span>Day: {{ gameData.date.day }}</span>
-        <!-- <span>timer: {{ gameData.date.timer }}</span>  -->
       </div>
-    </div>
+    </div> -->
 
     <div class="flexContainerHorizontal flexChild95">
-      <div id="hiveView" class="flexChild40 flexChildVertical">
+      <!-- <div id="hiveView" class="flexChild40 flexChildVertical">
         <div class="heartBeat" ref="heartbeatElement">
           <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(gameData.heart.amount, gameData.heart.max, heartbeatWidth) + 'px' }"/>
           <progress class="growth-progress" :value="gameData.heart.amount" :max="gameData.heart.max"></progress>
@@ -159,47 +166,58 @@ onMounted(() => {
             </li>
           </ul>
         </div>
+      </div> -->
+      <div id="hiveView" class="flexChild40 flexChildVertical">
+        <div class="heartBeat" ref="heartbeatElement">
+          <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(gameData.heart.amount, gameData.heart.max, heartbeatWidth) + 'px' }"/>
+          <progress class="growth-progress" :value="gameData.heart.amount" :max="gameData.heart.max"></progress>
+        </div>
+        <hiveTotals/>
+        <hiveInfo/>
       </div>
       <aside id="rightHandMenu" class="flexChild60 flexChildVertical">
-      <nav id="appTabs">
-        <a @click="tabs('hives')" :class="{ active: tabMapping.hive}" href="#">Hives</a>
-        <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
-        <a @click="tabs('research')" :class="{ active: tabMapping.research}" href="#">Research</a>
-        <a @click="tabs('grow')" :class="{ active: tabMapping.grow}" href="#">Grow</a>
-      </nav>  
-      <div id="tabContent">
-        <div v-show="tabMapping.hives">
-          <h3>Mutations are here</h3>
-        </div>
-        <div v-show="tabMapping.muations">
+        <mainMenu/>
+        <!-- <nav id="appTabs">
+          <a @click="tabs('hives')" :class="{ active: tabMapping.hive}" href="#">Hives</a>
+          <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
+          <a @click="tabs('research')" :class="{ active: tabMapping.research}" href="#">Research</a>
+          <a @click="tabs('grow')" :class="{ active: tabMapping.grow}" href="#">Grow</a>
+        </nav>  
+        <div id="tabContent">
+          <div v-show="tabMapping.hives">
             <h3>Mutations are here</h3>
-        </div>
-        <div v-show="tabMapping.research">
-          <div v-for="(research, key) in researchInfo.tierBiome">
-              <tooltip class="purchaseButton" v-if="gameData.research.tierBiome[key].available && !gameData.research.tierBiome[key].unlocked">
-                <button @click="unlockResearch(key)">{{ key }}</button>
-                <template #tooltip>
-                    <h3>{{ key }}</h3>
-                    <span>{{ research.description }}</span>
-                    <ul>
-                      <li v-for="(cost, key) in research.cost.genes">{{ key }}: {{ cost }}</li>
-                    </ul>
-                    <ul>
-                      <li v-for="(cost, key) in research.cost.resources">{{ key }}: {{ cost }}</li>
-                    </ul>
-                </template>
-              </tooltip>
           </div>
-        </div>
-        <div v-show="tabMapping.grow">
-          <h3>Growing is here</h3>
-          <button @click="addHive('Desert')" id="addHive">add hive</button>
-        </div>
-      </div>
+          <div v-show="tabMapping.muations">
+              <h3>Mutations are here</h3>
+          </div>
+          <div v-show="tabMapping.research">
+            <div v-for="(research, key) in researchInfo.tierBiome">
+                <tooltip class="purchaseButton" v-if="gameData.research.tierBiome[key].available && !gameData.research.tierBiome[key].unlocked">
+                  <button @click="unlockResearch(key)">{{ key }}</button>
+                  <template #tooltip>
+                      <h3>{{ key }}</h3>
+                      <span>{{ research.description }}</span>
+                      <ul>
+                        <li v-for="(cost, key) in research.cost.genes">{{ key }}: {{ cost }}</li>
+                      </ul>
+                      <ul>
+                        <li v-for="(cost, key) in research.cost.resources">{{ key }}: {{ cost }}</li>
+                      </ul>
+                  </template>
+                </tooltip>
+            </div>
+          </div>
+          <div v-show="tabMapping.grow">
+            <h3>Growing is here</h3>
+            <button @click="addHive('Desert')" id="addHive">add hive</button>
+          </div>
+        </div> -->
     </aside>
     </div>
   </div>
-  <div id="devArea">
+  <button @click="mainLoop()">Tick</button>
+  <devArea/>
+  <!-- <div id="devArea">
     <div v-if="showDev" id="dev">
       <h4>I am some debug info</h4>
       <div class="flexContainerHorizontal">
@@ -215,7 +233,7 @@ onMounted(() => {
       </div>
     </div>
     <button @click="showDev = !showDev">Toggle Dev</button>
-  </div>
+  </div> -->
 </template>
 
 <style scoped>
@@ -226,18 +244,6 @@ onMounted(() => {
   }
   .purchaseButton button:hover {
     background-color: var(--theme-secondary);
-  }
-  #topMenu {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 35px;
-    background: var(--theme-primary);
-    padding: 10px;
-    box-sizing: border-box;
-  }
-  #hiveTotals ul {
-
   }
   #hiveTotals ul li {
     display: inline-block;
@@ -335,55 +341,7 @@ onMounted(() => {
     }
   }
  
-  .hivearea span {
-    display: inline-block;
-    width: 150px;
-  }
-  .food span, .hiveResources span  {
-    display: inline-block;
-    width: 75px;
-  }
-  span {
-    display: inline-block;
-    width: 150px;
-  }
-  .hivearea {
-    width: max-content;
-    margin-right: 5px;
-  }
-  .hiveAreaTable {
-    display: inline-block;
-    vertical-align: bottom;
-  }
-  .hiveAreaTable tr {
-    font-size: 0.5rem;
-    text-align: center;
-  }
-  .hiveAreaTable tr td {
-    font-size: 1rem;
-    text-align: center;
-    width: 100px;
-  }
-  .hiveAreaTable .slash {
-    width: 10px;
-  }
-  .hiveinfo {
-    display: block;
-    box-sizing: border-box;
-    width: 100%;
-    padding: 10px;
-    margin: 0 0 10px 0;
-    background:   var(--theme-secondary);
-    color: wheat
-  }
-  #hives {
-    width: 100%;
-  }
-  #hiveView {
-    box-sizing: border-box;
-    /* height: 100vh; */
-    overflow-y: auto;
-  }
+  
   .heartIcon {
     position: absolute;
     top: 0;
@@ -391,30 +349,7 @@ onMounted(() => {
     margin-top: -4px;
   }
   /* Dev Tools styling */
-  #devArea {
-    text-align: right;
-    position: absolute; 
-    bottom: 0;
-    right: 0;   
-  }
-  #dev {
-    position: relative;
-    width: 700px;
-    height: 700px;
-    background: lightgrey;
-    bottom: 0;
-    right: 0;
-    color: black;
-    overflow-y: auto;
-  }
-  #dev .buttons {
-    flex: 25;
-  }
-  #dev pre {
-    flex: 75;
-    height: 680px;
-    overflow-y: auto;
-  }
+ 
 </style>
 
 

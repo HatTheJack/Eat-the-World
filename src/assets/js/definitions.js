@@ -89,4 +89,9 @@ export const COMMON_NAMES = {
       },
     },
   },
+  GERERAL: {
+    HIVE: {
+      NAME: 'hive',
+    }
+  }
 };

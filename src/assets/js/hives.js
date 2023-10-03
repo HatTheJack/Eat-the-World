@@ -17,7 +17,7 @@ export const initHiveForest = ([
       }, 
     [COMMON_NAMES.RESOURCES.NAME]: {
       [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: {
-        amount: 3140000000000,
+        amount: 0,
         show: true,
       },
       [COMMON_NAMES.RESOURCES.FIBRE.NAME]: {

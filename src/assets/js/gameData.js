@@ -123,11 +123,11 @@ export const totalResourcesInHive = computed(() => {
     const result = {};
   
     gameData.value.hive.forEach(hive => {
-      for (const resourceKey in hive.resources) {
+      for (const resourceKey in hive[COMMON_NAMES.RESOURCES.NAME]) {
         if (result[resourceKey]) {
-          result[resourceKey] += hive.resources[resourceKey].amount;
+          result[resourceKey] += hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].amount;
         } else {
-          result[resourceKey] = hive.resources[resourceKey].amount;
+          result[resourceKey] = hive[COMMON_NAMES.RESOURCES.NAME][resourceKey].amount;
         }
       }
     });
@@ -137,4 +137,4 @@ export const totalResourcesInHive = computed(() => {
 //binds the totalResourcesInHive to the gameData
 gameData.value.resources = totalResourcesInHive;
 
-export const showDev = ref(false);
+// export const showDev = ref(false);
