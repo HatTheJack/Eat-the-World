@@ -218,71 +218,100 @@ export const hiveManager = {
 export function growFood() {
 
 }
-
-export function heartBeat() {
-  // checks if there is enough biomass each tick
-  const hasEnoughBiomass = gameData.value.hive.some(hive => {
-    return hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount >= gameData.value.heart.pertick;
-  });
-
-  // things that happen if there is enough biomass
-  if (hasEnoughBiomass) {
-    
-    // Check if heart amount is less than heart max
-    if (gameData.value.heart.amount < gameData.value.heart.max) { 
-      gameData.value.heart.amount += gameData.value.heart.pertick; // Subtract pertick from each hive if it has enough biomass
-
-      // Check each hive if they have enough biomass then tick down.
-      gameData.value.hive.forEach(hive => {
-        if (hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount >= gameData.value.heart.pertick) {
-          // what happens if there is enough
-          //increase radius using pertick
-          hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount -= gameData.value.heart.pertick;
-          hive.heart.dyingState = false          
-        } else {
-          // what happens if there isn't
-          hive.heart.dyingState = true;
-        }
-      });
-      // checks if heart is 100 then reset if it is.
-    } else if (gameData.value.heart.amount == gameData.value.heart.max) {
-      gameData.value.heart.amount = 0;
-
-      // Performs actions on each hive
-      for (const hive of gameData.value.hive) {
-        hive.radius += hive.radiusPerBeat;
-        // set hive previous area to current area
-        hive.previousArea = hive.previousArea;
-        // calculate new area based on radius
-        hive.area = Math.min(hive.maxArea, calculateArea(hive.radius));
-        let difference = hive.area - hive.previousArea;
-        // iterates through each food on 
-        for (const category in hive[COMMON_NAMES.FOOD.NAME]) {
-          
-          for (const foodKey in hive[COMMON_NAMES.FOOD.NAME][category]) {
-            if (foodKey != "show") {
-              // increase each food amount by the difference in area
-                let amountToAdd = Math.round((difference * foodValues[COMMON_NAMES.FOOD.NAME][category][foodKey].multiplyer)*foodValues.Overall );
-                hive[COMMON_NAMES.FOOD.NAME][category][foodKey].amount += amountToAdd;
-              if(hive[COMMON_NAMES.FOOD.NAME][category][foodKey].amount > 0 && hive[COMMON_NAMES.FOOD.NAME][category][foodKey].show == false) {
-                hive[COMMON_NAMES.FOOD.NAME][category][foodKey].show = true;
-                hive[COMMON_NAMES.FOOD.NAME][category].show = true;
-              }
-            }
-          }
-        }
-        
-        growFood();
+export function heartBeat(delta) {
+  // console.log(delta, "|||", gameData.value.heart.pertick * delta)
+  let hasEnoughBiomass = false;
+  // Check if heart amount is less than heart max
+  if (gameData.value.heart.amount < gameData.value.heart.max) { 
+    // Check each hive if they have enough biomass then tick down.
+    gameData.value.hive.forEach(hive => {
+      if (hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount >= gameData.value.heart.pertick) {
+        hasEnoughBiomass = true
+        // decreate biomass pertick using pertick
+        hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount -= gameData.value.heart.pertick * delta;
+        hive.heart.dyingState = false          
+      } else {
+        // what happens if there isn't
+        hive.heart.dyingState = true;
       }
-      // adds to each harvest max based on area using forEach vue
+    });
+    if ( hasEnoughBiomass ) {
+      gameData.value.heart.amount += gameData.value.heart.pertick * delta;
+    } else {
+      gameData.value.heart.dyingState = true;
     }
-        
-  } else {
-    // Handle the case when no hive has enough biomass
-    // You can add your own logic here if needed
-    gameData.value.heart.dyingState = true;
+    // checks if heart is 100 then reset if it is.
+  } else if (gameData.value.heart.amount >= gameData.value.heart.max) {
+    gameData.value.heart.amount = 0;
   }
 }
+
+// export function heartBeat() {
+//   console.log("heatbeat");
+//   // checks if there is enough biomass each tick
+//   const hasEnoughBiomass = gameData.value.hive.some(hive => {
+//     return hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount >= gameData.value.heart.pertick;
+//   });
+
+//   // things that happen if there is enough biomass
+//   if (hasEnoughBiomass) {
+    
+//     // Check if heart amount is less than heart max
+//     if (gameData.value.heart.amount < gameData.value.heart.max) { 
+//       gameData.value.heart.amount += gameData.value.heart.pertick; // Subtract pertick from each hive if it has enough biomass
+
+//       // Check each hive if they have enough biomass then tick down.
+//       gameData.value.hive.forEach(hive => {
+//         if (hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount >= gameData.value.heart.pertick) {
+//           // what happens if there is enough
+//           //increase radius using pertick
+//           hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount -= gameData.value.heart.pertick;
+//           hive.heart.dyingState = false          
+//         } else {
+//           // what happens if there isn't
+//           hive.heart.dyingState = true;
+//         }
+//       });
+//       // checks if heart is 100 then reset if it is.
+//     } else if (gameData.value.heart.amount == gameData.value.heart.max) {
+//       gameData.value.heart.amount = 0;
+
+//       // Performs actions on each hive
+//       for (const hive of gameData.value.hive) {
+//         hive.radius += hive.radiusPerBeat;
+//         // set hive previous area to current area
+//         hive.previousArea = hive.previousArea;
+//         // calculate new area based on radius
+//         hive.area = Math.min(hive.maxArea, calculateArea(hive.radius));
+//         let difference = hive.area - hive.previousArea;
+//         // iterates through each food on 
+//         for (const category in hive[COMMON_NAMES.FOOD.NAME]) {
+          
+//           for (const foodKey in hive[COMMON_NAMES.FOOD.NAME][category]) {
+//             if (foodKey != "show") {
+//               // increase each food amount by the difference in area
+//                 let amountToAdd = Math.round((difference * foodValues[COMMON_NAMES.FOOD.NAME][category][foodKey].multiplyer)*foodValues.Overall );
+//                 hive[COMMON_NAMES.FOOD.NAME][category][foodKey].amount += amountToAdd;
+//               if(hive[COMMON_NAMES.FOOD.NAME][category][foodKey].amount > 0 && hive[COMMON_NAMES.FOOD.NAME][category][foodKey].show == false) {
+//                 hive[COMMON_NAMES.FOOD.NAME][category][foodKey].show = true;
+//                 hive[COMMON_NAMES.FOOD.NAME][category].show = true;
+//               }
+//             }
+//           }
+//         }
+        
+//         growFood();
+//       }
+//       // adds to each harvest max based on area using forEach vue
+//     }
+        
+//   } else {
+//     // Handle the case when no hive has enough biomass
+//     // You can add your own logic here if needed
+//     gameData.value.heart.dyingState = true;
+//   }
+// }
+
 export function tickHour() {
   gameData.value.date.hour += 4;
   if (gameData.value.date.hour == 24) {

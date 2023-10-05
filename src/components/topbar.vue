@@ -5,7 +5,7 @@
         <span>Day: {{ gameData.date.day }}</span>
         <!-- <span>timer: {{ gameData.date.timer }}</span>  -->
         <h3>GameData</h3>
-        {{ gameData.heart.amount }} {{ gameData.date.timer }}
+        {{ gameData.heart.amount }} - {{ gameData.date.timer }} - {{  }}
         </div>
     </div>
 </template>

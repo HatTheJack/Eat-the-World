@@ -26,21 +26,25 @@ import tooltip from '@/components/tooltip.vue';
 //init some variables
 // Define a variable to store the interval ID
 let mainGameLoop;
-const loopInterval = 10;
+const loopInterval = 2000;
 
 
 // main loop function
 function mainLoop() {
+  let prevTime = gameData.value.date.timestamp;
+  let currentTime = performance.now();
+  let delta = (currentTime - prevTime)/10;
+  console.log(delta, "|||", Math.round(delta*10));
   // let biomassAreaMultiplyer = 500;
   // let fibreAreaMultiplyer = 1.5;
-  if (gameData.value.heart.amount == gameData.value.date.timer) {
-    heartBeat();
+  if (gameData.value.heart.amount < gameData.value.date.timer) {
+    heartBeat(delta);
   }
   // heartBeat();
   if (gameData.value.date.timer < 100) {
-    gameData.value.date.timer++;
-  } else if (gameData.value.date.timer == 100) {
-    gameData.value.date.timer = 0;// reset counter
+    gameData.value.date.timer += Math.round(10*delta, 0);
+  } else if (gameData.value.date.timer > 1000) {
+    gameData.value.date.timer = gameData.value.date.timer - 1000;// reset counter
     //add to hour every time then add to day when hour is 24 and year when day is 365
     tickHour();
     // add to each food based on harvest multiplyer and current area
@@ -63,6 +67,7 @@ function mainLoop() {
    
     // do stuff every second
   }
+  gameData.value.date.timestamp = currentTime;
 }
 // Create a ref to store the width of the element
 const heartbeatWidth = ref(0);
@@ -83,17 +88,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- <child-component /> -->
-  <!-- top information menu in game date and time etc -->
   <div class="flexContainerVertical">
     <topbar/>
-    <!-- <div id="topMenu" class="">
-      <div id="gameDate">
-        <span>Year: {{ gameData.date.year }}</span>
-        <span>Day: {{ gameData.date.day }}</span>
-      </div>
-    </div> -->
-
     <div class="flexContainerHorizontal flexChild95">
       <!-- <div id="hiveView" class="flexChild40 flexChildVertical">
         <div class="heartBeat" ref="heartbeatElement">

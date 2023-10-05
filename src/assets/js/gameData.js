@@ -78,6 +78,7 @@ export const gameData = ref({
         day: 0,
         hour: 0,
         timer: 0,
+        timestamp: 0,
     },
     research: JSON.parse(JSON.stringify(researchData)),
     foodUnlocked: {
