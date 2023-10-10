@@ -1,11 +1,12 @@
 <template>    
   <div id="hives">
       <div class="hiveinfo" v-for="hive in gameData.hive">
-        <div class="expandable-div" :class="{ expanded: isExpanded }" @click="toggleExpansion"></div> 
+        <div class="expandable-div" :class="{ expanded: isExpanded }" @click="toggleExpansion">
           <span>Biome: {{ hive.biome }}</span>
           <span>Radius: {{ formatNumber(hive.radius, "cm") }}</span>
           <span class="hivearea">Area:</span>
-          <table style="margin-bottom: -3.5px" class="hiveAreaTable">
+          <bar :barNumbers="[60, 10]" :max="100"/>
+          <!-- <table style="margin-bottom: -3.5px" class="hiveAreaTable">
             <thead>
               <tr>
                 <th>Used</th>
@@ -25,7 +26,7 @@
                 <td>{{ formatNumber(hive.maxArea, "cm2") }} sq</td>
               </tr>
             </tbody>
-          </table>
+          </table> -->
           <div class="hiveResources">
               <div v-for="(resource, key) in hive[COMMON_NAMES.RESOURCES.NAME]">
                 <div v-if="resource.show == true">
@@ -51,7 +52,8 @@
             </template>
           </ul>
         </div>
-      </div>
+      </div> 
+  </div>
 </template>
   
 <script setup>
@@ -59,8 +61,9 @@
   import { gameData } from '@/assets/js/gameData.js'
   import { COMMON_NAMES } from '@/assets/js/definitions.js'
   import { formatNumber, hiveManager } from '@/assets/js/functions.js';
+  import bar from '@/components/subcomponents/bar.vue';
   
-  const isExpanded = ref(false);
+  const isExpanded = ref(true);
   
   const toggleExpansion = () => {
     isExpanded.value = !isExpanded.value;
@@ -70,16 +73,16 @@
 <style scoped>
   /* Add styling for your expandable div here */
   .expandable-div {
-    width: 100px; /* Set initial width */
-    height: 100px; /* Set initial height */
-    transition: width 0.3s ease, height 0.3s ease; /* Add smooth transitions */
+    height: max-content;
+    max-height: 100px;
+    transition: max-height 1s ease; 
     cursor: pointer;
+    overflow: hidden;
   }
   
   /* Apply styling when expanded */
   .expanded {
-    width: 200px; /* Set expanded width */
-    height: 200px; /* Set expanded height */
+    max-height: 500px; 
   }
   .hivearea span {
     display: inline-block;
@@ -120,10 +123,13 @@
     padding: 10px;
     margin: 0 0 10px 0;
     background:   var(--theme-secondary);
+    border: 1px solid var(--theme-tertiary);
+    border-radius: 5px;
     color: wheat
   }
   #hives {
     width: 100%;
+    padding: 10px
   }
   #hiveView {
     box-sizing: border-box;

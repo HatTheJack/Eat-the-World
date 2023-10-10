@@ -22,7 +22,6 @@ import hiveTotals from '@/components/totals.vue';
 import tooltip from '@/components/tooltip.vue';
 
 
-
 //init some variables
 // Define a variable to store the interval ID
 let mainGameLoop;
@@ -31,6 +30,7 @@ const loopInterval = 2000;
 
 // main loop function
 function mainLoop() {
+  // make delta just the time difference as that's what I am trhing t add anyway
   let prevTime = gameData.value.date.timestamp;
   let currentTime = performance.now();
   let delta = (currentTime - prevTime)/10;
@@ -88,7 +88,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flexContainerVertical">
+  <main class="flexContainerVertical">
     <topbar/>
     <div class="flexContainerHorizontal flexChild95">
       <!-- <div id="hiveView" class="flexChild40 flexChildVertical">
@@ -171,8 +171,9 @@ onMounted(() => {
         <hiveTotals/>
         <hiveInfo/>
       </div>
+      <mainMenu/>
       <aside id="rightHandMenu" class="flexChild60 flexChildVertical">
-        <mainMenu/>
+        
         <!-- <nav id="appTabs">
           <a @click="tabs('hives')" :class="{ active: tabMapping.hive}" href="#">Hives</a>
           <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
@@ -210,8 +211,7 @@ onMounted(() => {
         </div> -->
     </aside>
     </div>
-  </div>
-  <button @click="mainLoop()">Tick</button>
+  </main>
   <devArea/>
   <!-- <div id="devArea">
     <div v-if="showDev" id="dev">
@@ -234,6 +234,23 @@ onMounted(() => {
 
 <style scoped>
 @import "@/assets/css/themes.css";
+  main {
+   
+  }
+  main::before {
+    opacity: 0.1;
+    content: "";
+    display: block;
+    width: 150vw;
+    height: 150vh;
+    position: fixed;
+    left: -500px;
+    right: 0;
+    z-index: -1;
+    background: no-repeat center url('@/assets/images/Firefly -brain cells- dark purple 37713.jpg');
+    filter: blur(5px);
+  }
+  
   .purchaseButton button {
     background-color: var(--theme-primary);
     padding: 10px;
@@ -301,14 +318,14 @@ onMounted(() => {
     border-radius: 3px;
     border-bottom: 3px solid transparent;
   }
-  .heartBeat {
-      position: relative;
-      box-sizing: border-box;
-      padding: 5px;
-      width: 100%;
-      background: var(--theme-accent);
-    }
-  /* Style the progress bar container */
+.heartBeat {
+    position: relative;
+    box-sizing: border-box;
+    padding: 5px;
+    width: 100%;
+    background: var(--theme-accent);
+  }
+/* Style the progress bar container */
   .growth-progress {
     display: block;
     width: 100%;

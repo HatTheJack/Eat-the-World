@@ -16,7 +16,8 @@
             </div>
         </div>
         </transition>
-        <button @click="showDev = !showDev">Toggle Dev</button>
+        <button @click="showDev = !showDev">Toggle Dev</button> 
+        <div> {{ gameData.heart.amount }} - {{ gameData.date.timer }} - {{  }} </div>
     </div>
 </template>
   

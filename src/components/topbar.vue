@@ -1,11 +1,9 @@
 <template>
     <div id="topMenu" class="">
         <div id="gameDate">
-        <span>Year: {{ gameData.date.year }}</span>
-        <span>Day: {{ gameData.date.day }}</span>
-        <!-- <span>timer: {{ gameData.date.timer }}</span>  -->
-        <h3>GameData</h3>
-        {{ gameData.heart.amount }} - {{ gameData.date.timer }} - {{  }}
+            <span>Year: {{ gameData.date.year }} </span>
+            <span>Day: {{ gameData.date.day }} </span>
+            <!-- <span>timer: {{ gameData.date.timer }}</span>  -->
         </div>
     </div>
 </template>
@@ -14,14 +12,19 @@
 import { gameData } from '@/assets/js/gameData.js';
 </script>
 
-<style>
+<style scoped>
   #topMenu {
     display: flex;
+    box-sizing: border-box;
     align-items: center;
     justify-content: center;
     min-height: 35px;
-    background: var(--theme-primary);
-    padding: 10px;
-    box-sizing: border-box;
+    padding: 20px;
+    opacity: 0.85;
+    font-size: 1.2em;
+    /* background: var(--theme-primary); */
+  }
+  span + span{
+    margin-left: 20px;
   }
 </style>
