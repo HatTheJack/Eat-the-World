@@ -26,54 +26,55 @@ import tooltip from '@/components/tooltip.vue';
 //init some variables
 // Define a variable to store the interval ID
 let mainGameLoop;
-const loopInterval = 2000;
+const loopInterval = 10;
 
 
 // main loop function
 function mainLoop() {
-  let prevTime = gameData.value.date.timestamp;
-  let currentTime = performance.now();
-  let delta = (currentTime - prevTime)/10;
-  console.log(delta, "|||", Math.round(delta*10));
-  // let biomassAreaMultiplyer = 500;
-  // let fibreAreaMultiplyer = 1.5;
-  if (gameData.value.heart.amount < gameData.value.date.timer) {
-    heartBeat(delta);
-  }
-  // heartBeat();
-  if (gameData.value.date.timer < 100) {
-    gameData.value.date.timer += Math.round(10*delta, 0);
-  } else if (gameData.value.date.timer > 1000) {
-    gameData.value.date.timer = gameData.value.date.timer - 1000;// reset counter
-    //add to hour every time then add to day when hour is 24 and year when day is 365
-    tickHour();
-    // add to each food based on harvest multiplyer and current area
-    gameData.value.hive.forEach(hive => {
-      for (const resourceKey in hive[COMMON_NAMES.FOOD.NAME]) {
-        // add the harvest if there is less of the harvest than the total area times multiplyer
-        if (hive[COMMON_NAMES.FOOD.NAME][resourceKey].amount < hive[COMMON_NAMES.FOOD.NAME][resourceKey].max) {
-          hive[COMMON_NAMES.FOOD.NAME][resourceKey].amount += Math.round(foodValues[resourceKey] * hive.area/1000000);
-        }
-      }
-    });
-
-
-    if (gameData.value.heart.dyingState == true) {
-      gameData.value.hive.forEach(hive => {
-        hive.heart.healthMultiplyer = Math.max(hive.heart.healthMultiplyer - 0.001, -1)
-      });  
+  if (gameData.value.paused === false) { 
+    let prevTime = gameData.value.date.timestamp;
+    let currentTime = performance.now();
+    let delta = (currentTime - prevTime)/10;
+    // console.log(delta, "|||", Math.round(delta*10));
+    // let biomassAreaMultiplyer = 500;
+    // let fibreAreaMultiplyer = 1.5;
+    if (gameData.value.heart.amount <= gameData.value.date.timer) {
+      heartBeat(delta);
     }
+    // heartBeat();
+    if (gameData.value.date.timer < 1000) {
+      gameData.value.date.timer += Math.round(10*delta, 0);
+    } 
+    if (gameData.value.date.timer >= 1000) {
+      gameData.value.date.timer = 0;// reset counter
+      //add to hour every time then add to day when hour is 24 and year when day is 365
+      tickHour();
+      // add to each food based on harvest multiplyer and current area
+      gameData.value.hive.forEach(hive => {
+        for (const resourceKey in hive[COMMON_NAMES.FOOD.NAME]) {
+          // add the harvest if there is less of the harvest than the total area times multiplyer
+          if (hive[COMMON_NAMES.FOOD.NAME][resourceKey].amount < hive[COMMON_NAMES.FOOD.NAME][resourceKey].max) {
+            hive[COMMON_NAMES.FOOD.NAME][resourceKey].amount += Math.round(foodValues[resourceKey] * hive.area/1000000);
+          }
+        }
+      });
 
-   
-    // do stuff every second
+
+      if (gameData.value.heart.dyingState == true) {
+        gameData.value.hive.forEach(hive => {
+          hive.heart.healthMultiplyer = Math.max(hive.heart.healthMultiplyer - 0.001, -1)
+        });  
+      }
+
+    
+      // do stuff every second
+    }
+    gameData.value.date.timestamp = currentTime;
   }
-  gameData.value.date.timestamp = currentTime;
 }
 // Create a ref to store the width of the element
 const heartbeatWidth = ref(0);
 
-// Create a ref to the DOM element you want to measure
-const heartbeatElement = ref(null);
 
 // Use the onMounted hook to measure the element's width after it's mounted
 // Use the onMounted hook to start the loop when the component is mounted
@@ -164,9 +165,12 @@ onMounted(() => {
         </div>
       </div> -->
       <div id="hiveView" class="flexChild40 flexChildVertical">
-        <div class="heartBeat" ref="heartbeatElement">
+        <div class="heartBeat">
           <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(gameData.heart.amount, gameData.heart.max, heartbeatWidth) + 'px' }"/>
-          <progress class="growth-progress" :value="gameData.heart.amount" :max="gameData.heart.max"></progress>
+          <!-- <progress class="growth-progress" :value="gameData.heart.amount" :max="gameData.heart.max"></progress> -->
+          <div class="progress-heart" style="color: black">
+            {{  gameData.heart.amountPercent }}
+          </div>
         </div>
         <hiveTotals/>
         <hiveInfo/>
@@ -211,7 +215,6 @@ onMounted(() => {
     </aside>
     </div>
   </div>
-  <button @click="mainLoop()">Tick</button>
   <devArea/>
   <!-- <div id="devArea">
     <div v-if="showDev" id="dev">
@@ -337,6 +340,22 @@ onMounted(() => {
     }
   }
  
+  .progress-heart {
+    width: 25%;
+    transform-origin: 0% 0%;
+    transition: transform 0.05s linear;
+    transform: scaleX(v-bind(gameData.heart.amountPercent));
+
+  }
+  .progress-heart::after {
+    content: "♥";
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 1.5rem;
+    transform: scaleX(v-bind(gameData.heart.amountPercentInverted));
+    color: red;
+  }
   
   .heartIcon {
     position: absolute;

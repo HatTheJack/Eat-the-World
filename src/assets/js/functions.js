@@ -240,8 +240,9 @@ export function heartBeat(delta) {
     } else {
       gameData.value.heart.dyingState = true;
     }
-    // checks if heart is 100 then reset if it is.
-  } else if (gameData.value.heart.amount >= gameData.value.heart.max) {
+    // checks if heart is greater or equal to max then reset if it is.
+  } 
+  if (gameData.value.heart.amount >= gameData.value.heart.max) {
     gameData.value.heart.amount = 0;
   }
 }
