@@ -5,12 +5,15 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 
 // Define the gameData object
 export const gameData = ref({
+    paused: false,
     hive: JSON.parse(JSON.stringify(initHiveForest)),
     heart: 
       { 
-        amount: 0, 
-        max: 100, 
-        pertick: 1,
+        amount: 0,
+        amountPercent: 0,
+        amountPercentInverted: 0,
+        max: 1000, 
+        pertick: 10,
         multiplyer: 1,
         dyingState: false,
       },
@@ -111,6 +114,16 @@ export const gameData = ref({
     },
 });
 
+export const heartAmountPercent = computed(() => {
+  return gameData.value.heart.amount / gameData.value.heart.max;
+});
+gameData.value.heart.amountPercent = heartAmountPercent;
+
+export const heartAmountPercentInverted = computed(() => {
+  return 1 - (gameData.value.heart.amount / gameData.value.heart.max);
+});
+gameData.value.heart.amountPercentInverted = heartAmountPercentInverted;
+
 // Define the tabMapping object, doesn't need to be stored in gameData
 export const tabMapping = ref({
     hive: true,
@@ -139,3 +152,4 @@ export const totalResourcesInHive = computed(() => {
 gameData.value.resources = totalResourcesInHive;
 
 // export const showDev = ref(false);
+// const paused = ref(false);

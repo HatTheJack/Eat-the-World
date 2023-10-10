@@ -3,16 +3,17 @@
         <transition>
         <div v-if="showDev" id="dev">
             <h4>I am some debug info</h4>
-            <div class="flexContainerHorizontal">
-            <div class="buttons">
-            <button @click="heartBeat()">Tick</button>
-            <button @click="gameData.heart.amount = gameData.heart.max">Max heart</button>
-            <button @click="gameData.hive[0].radiusPerBeat += 100">Increase radius per beat 100</button>
-            <button @click="gameData.hive[0].radiusPerBeat += 1000">Increase radius per beat 1000</button>
-            <button @click="gameData.hive[0].radiusPerBeat += 10000">Increase radius per beat 10000</button>
-            <button @click="gameData.hive[0].radiusPerBeat += 1000000000">Increase radius per beat 1000000000</button>
-            </div>
-            <pre>{{ gameData }}</pre>
+            <div class="devContent">
+                <div class="buttons">
+                    <button @click="heartBeat()">Tick</button>
+                    <button @click="gameData.paused = !gameData.paused">{{ gameData.paused ? 'Resume' : 'Pause' }}</button>  
+                    <button @click="gameData.heart.amount = gameData.heart.max">Max heart</button>
+                    <button @click="gameData.hive[0].radiusPerBeat += 100">Increase radius per beat 100</button>
+                    <button @click="gameData.hive[0].radiusPerBeat += 1000">Increase radius per beat 1000</button>
+                    <button @click="gameData.hive[0].radiusPerBeat += 10000">Increase radius per beat 10000</button>
+                    <button @click="gameData.hive[0].radiusPerBeat += 1000000000">Increase radius per beat 1000000000</button>
+                </div>
+                <pre>{{ gameData }}</pre>
             </div>
         </div>
         </transition>
@@ -23,7 +24,7 @@
   
 <script setup>
   import { ref } from 'vue';
-  import { gameData } from '@/assets/js/gameData.js'
+  import { gameData } from '@/assets/js/gameData.js';
 
   const showDev = ref(false);
 </script>
@@ -31,6 +32,16 @@
 <style scoped>
   /* import theme variables from theme.css */
   @import url('@/assets/css/themes.css');
+
+  /* button {
+    padding: 5px;
+    margin: 5px;
+  } */
+  .devContent {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
   
     #devArea {
         text-align: right;
@@ -40,6 +51,7 @@
     }
     #dev {
         position: relative;
+        /* padding: 5px; */
         width: 700px;
         height: 700px;
         background: lightgrey;
@@ -49,10 +61,19 @@
         overflow-y: auto;
     }
     #dev .buttons {
-        flex: 25;
+        display: flex;
+        flex-wrap: wrap;
+        flex: 60;
+        padding: 5px;
+        height: max-content;
+        justify-content: space-between;        
+    }
+    button {
+        flex: calc(33.33% - 10px);
+        margin: 0 10px 5px 0;
     }
     #dev pre {
-        flex: 75;
+        flex: 40;
         height: 680px;
         overflow-y: auto;
     }
