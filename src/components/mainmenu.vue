@@ -34,7 +34,6 @@
             <button @click="addHive('Desert')" id="addHive">add hive</button>
             </div>
         </div>
-    </aside>
 </template>
 
 <script setup>
@@ -49,22 +48,41 @@ function tabs(content) {
   for (const key in tabMapping.value) {
     tabMapping.value[key] = false;
   }
-
   // Set the corresponding variable to true based on the content input
   if (tabMapping.value.hasOwnProperty(content)) {
+    console.log(content);
     tabMapping.value[content] = true;
   }
 }
 </script>
 
-<style>
+<style scoped>
 @import url('@/assets/css/themes.css');
-aside {
+  #tabContent {
+    margin-top: 35px;
+    border-top: 3px solid var(--theme-accent);
+  }
+  #appTabs {
     position: absolute;
-    top: 35px;
-    right: 0;
-    left: 40%;
+    padding: 5px;
     width: 100%;
-    height: 100%;
-}   
+    height: 35px;
+  }
+  #appTabs a {
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 5px 20px;
+    margin-right: 10px;
+    width: max-content;
+    border: 3px solid transparent;
+    /* border-bottom: 3px solid var(--theme-accent); */
+    text-decoration: none;
+    color: var(--theme-accent);
+  }
+  #appTabs a.active {
+    background: var(--theme-background);
+    border: 3px solid var(--theme-accent);
+    border-radius: 3px;
+    border-bottom: 3px solid transparent;
+  }
 </style>
