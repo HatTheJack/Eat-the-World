@@ -18,6 +18,6 @@ import { faHeart } from '@fortawesome/free-solid-svg-icons'
 /* add icons to the library */
 library.add(faUserSecret, faHeart)
 
-createApp(App)
+createApp(App2)
 .component('font-awesome-icon', FontAwesomeIcon)
 .mount('#app')

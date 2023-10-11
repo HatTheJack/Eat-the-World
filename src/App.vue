@@ -11,7 +11,7 @@ import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount, watc
 import { COMMON_NAMES } from '@/assets/js/definitions';
 import { gameData } from '@/assets/js/gameData.js'
 import { foodValues } from "@/assets/js/resources.js";
-import { calculateArea, formatNumber, calculateHeartPosition, hiveManager, heartBeat, tickHour, addHive, unlockResearch } from '@/assets/js/functions.js';
+import { mainLoop, calculateArea, formatNumber, calculateHeartPosition, hiveManager, heartBeat, tickHour, addHive, unlockResearch } from '@/assets/js/functions.js';
 import { researchInfo } from '@/assets/js/research.js';
 import ChildComponent from './components/popups.vue';
 import devArea from '@/components/dev.vue';
@@ -25,52 +25,11 @@ import tooltip from '@/components/tooltip.vue';
 //init some variables
 // Define a variable to store the interval ID
 let mainGameLoop;
-const loopInterval = 10;
+const loopInterval = 100;
 
 
 // main loop function
-function mainLoop() {
-  if (gameData.value.paused === false) { 
-    let prevTime = gameData.value.date.timestamp;
-    let currentTime = performance.now();
-    let delta = (currentTime - prevTime)/10;
-    // console.log(delta, "|||", Math.round(delta*10));
-    // let biomassAreaMultiplyer = 500;
-    // let fibreAreaMultiplyer = 1.5;
-    if (gameData.value.heart.amount <= gameData.value.date.timer) {
-      heartBeat(delta);
-    }
-    // heartBeat();
-    if (gameData.value.date.timer < 1000) {
-      gameData.value.date.timer += Math.round(10*delta, 0);
-    } 
-    if (gameData.value.date.timer >= 1000) {
-      gameData.value.date.timer = 0;// reset counter
-      //add to hour every time then add to day when hour is 24 and year when day is 365
-      tickHour();
-      // add to each food based on harvest multiplyer and current area
-      gameData.value.hive.forEach(hive => {
-        for (const resourceKey in hive[COMMON_NAMES.FOOD.NAME]) {
-          // add the harvest if there is less of the harvest than the total area times multiplyer
-          if (hive[COMMON_NAMES.FOOD.NAME][resourceKey].amount < hive[COMMON_NAMES.FOOD.NAME][resourceKey].max) {
-            hive[COMMON_NAMES.FOOD.NAME][resourceKey].amount += Math.round(foodValues[resourceKey] * hive.area/1000000);
-          }
-        }
-      });
 
-
-      if (gameData.value.heart.dyingState == true) {
-        gameData.value.hive.forEach(hive => {
-          hive.heart.healthMultiplyer = Math.max(hive.heart.healthMultiplyer - 0.001, -1)
-        });  
-      }
-
-    
-      // do stuff every second
-    }
-    gameData.value.date.timestamp = currentTime;
-  }
-}
 
 
 // Use the onMounted hook to measure the element's width after it's mounted

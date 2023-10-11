@@ -5,7 +5,7 @@
             <h4>I am some debug info</h4>
             <div class="devContent">
                 <div class="buttons">
-                    <button @click="heartBeat()">Tick</button>
+                    <button @click="mainLoop(true)">Tick</button>
                     <button @click="gameData.paused = !gameData.paused">{{ gameData.paused ? 'Resume' : 'Pause' }}</button>  
                     <button @click="gameData.heart.amount = gameData.heart.max">Max heart</button>
                     <button @click="gameData.hive[0].radiusPerBeat += 100">Increase radius per beat 100</button>
@@ -25,6 +25,7 @@
 <script setup>
   import { ref } from 'vue';
   import { gameData } from '@/assets/js/gameData.js';
+  import { mainLoop } from '@/assets/js/functions.js';
 
   const showDev = ref(false);
 </script>

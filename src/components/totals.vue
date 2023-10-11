@@ -21,7 +21,6 @@ import { gameData } from '@/assets/js/gameData.js'
 import { COMMON_NAMES } from '@/assets/js/definitions.js'
 import { formatNumber } from '@/assets/js/functions.js';
 
-console.log(gameData.value.hive);
 const hasMultipleHives = computed(() => gameData.value.hive.length > 1);
 </script>
 

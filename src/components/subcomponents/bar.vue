@@ -13,7 +13,6 @@
     
     // iterate each item in variablees and convert it to a percent of 1000
     const barNumbersPercent = props.barNumbers.map(number => (number / props.max));
-    console.log(barNumbersPercent);
 </script>
 <style scoped>
     @import url('@/assets/css/themes.css');

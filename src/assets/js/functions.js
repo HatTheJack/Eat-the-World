@@ -228,7 +228,7 @@ export function heartBeat(delta) {
       if (hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount >= gameData.value.heart.pertick) {
         hasEnoughBiomass = true
         // decreate biomass pertick using pertick
-        hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount -= gameData.value.heart.pertick * delta;
+        hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount -= delta;
         hive.heart.dyingState = false          
       } else {
         // what happens if there isn't
@@ -236,7 +236,7 @@ export function heartBeat(delta) {
       }
     });
     if ( hasEnoughBiomass ) {
-      gameData.value.heart.amount += gameData.value.heart.pertick * delta;
+      gameData.value.heart.amount += delta;
     } else {
       gameData.value.heart.dyingState = true;
     }
@@ -247,6 +247,74 @@ export function heartBeat(delta) {
   }
 }
 
+
+export function main_loop() {
+  let prevTime = gameData.value.date.timestamp;
+  let currentTime = performance.now();
+  let delta = (currentTime - prevTime);
+  gameData.value.date.timestamp = currentTime;
+  // do stuff
+  // check if biomass is greater than pertick
+  if (gameData.value.hive[0][COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount >= gameData.value.heart.pertick) {
+    for ( hive in gameData.hive) {
+      hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount -= gameData.value.heart.pertick;
+    }
+
+
+    
+
+  
+}
+
+export function mainLoop(forced) {
+  if (gameData.value.paused === false || forced === true) { 
+    let prevTime = gameData.value.date.timestamp;
+    let currentTime = performance.now();
+    let delta = (currentTime - prevTime);
+
+    // console.log(delta, "|||", Math.round(delta*10));
+    // let biomassAreaMultiplyer = 500;
+    // let fibreAreaMultiplyer = 1.5;
+    if (gameData.value.heart.amount <= gameData.value.date.timer) {
+      heartBeat(delta);
+    }
+    // heartBeat();
+    if (gameData.value.date.timer < 1000) {
+      gameData.value.date.timer += delta;
+    } 
+    if (gameData.value.date.timer >= 1000) {
+      let prevTick = gameData.value.date.tickstamp;
+      let currentTick = performance.now();
+      console.log("currentTick: ",currentTick);
+      let deltaTick = currentTick - prevTick;
+      console.log("one second: ", deltaTick);
+      gameData.value.date.timer = 0;// reset counter
+      //add to hour every time then add to day when hour is 24 and year when day is 365
+      tickHour();
+      // add to each food based on harvest multiplyer and current area
+      gameData.value.hive.forEach(hive => {
+        for (const resourceKey in hive[COMMON_NAMES.FOOD.NAME]) {
+          // add the harvest if there is less of the harvest than the total area times multiplyer
+          if (hive[COMMON_NAMES.FOOD.NAME][resourceKey].amount < hive[COMMON_NAMES.FOOD.NAME][resourceKey].max) {
+            hive[COMMON_NAMES.FOOD.NAME][resourceKey].amount += Math.round(foodValues[resourceKey] * hive.area/1000000);
+          }
+        }
+      });
+
+
+      if (gameData.value.heart.dyingState == true) {
+        gameData.value.hive.forEach(hive => {
+          hive.heart.healthMultiplyer = Math.max(hive.heart.healthMultiplyer - 0.001, -1)
+        });  
+      }
+
+      gameData.value.date.tickstamp = currentTick
+      console.log("prevTick: ",prevTick);
+      // do stuff every second
+    }
+    gameData.value.date.timestamp = currentTime;
+  }
+}
 // export function heartBeat() {
 //   console.log("heatbeat");
 //   // checks if there is enough biomass each tick
