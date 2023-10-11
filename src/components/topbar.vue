@@ -1,8 +1,10 @@
 <template>
     <div id="topMenu" class="">
+        <heart />
         <div id="gameDate">
             <span>Year: {{ gameData.date.year }} </span>
             <span>Day: {{ gameData.date.day }} </span>
+            
             <!-- <span>timer: {{ gameData.date.timer }}</span>  -->
         </div>
     </div>
@@ -10,10 +12,12 @@
 
 <script setup>
 import { gameData } from '@/assets/js/gameData.js';
+import heart from '@/components/subcomponents/heart.vue';
 </script>
 
 <style scoped>
   #topMenu {
+    position: relative;
     display: flex;
     box-sizing: border-box;
     align-items: center;
