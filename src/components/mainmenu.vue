@@ -1,16 +1,15 @@
 <template>
-    <aside>
         <nav id="appTabs">
-            <a @click="tabs('hives')" :class="{ active: tabMapping.hive}" href="#">Hives</a>
+            <a @click="tabs('hive')" :class="{ active: tabMapping.hive}" href="#">Hives</a>
             <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
             <a @click="tabs('research')" :class="{ active: tabMapping.research}" href="#">Research</a>
             <a @click="tabs('grow')" :class="{ active: tabMapping.grow}" href="#">Grow</a>
         </nav>  
         <div id="tabContent">
-            <div v-show="tabMapping.hives">
-                <h3>Mutations are here</h3>
+            <div v-show="tabMapping.hive">
+                <h3>hives are here</h3>
             </div>
-            <div v-show="tabMapping.muations">
+            <div v-show="tabMapping.mutations">
                 <h3>Mutations are here</h3>
             </div>
             <div v-show="tabMapping.research">
