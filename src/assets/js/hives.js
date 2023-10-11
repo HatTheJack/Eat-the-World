@@ -2,7 +2,8 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 
 export const initHiveForest = ([
   { 
-    id: 0, 
+    id: 0,
+    active: false,
     biome: "Forest",
     radius: 10,
     radiusPerBeat: 1,
