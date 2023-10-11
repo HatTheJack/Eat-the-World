@@ -1,32 +1,35 @@
 <template>    
+
   <div id="hives">
+    <hiveTotals/>
+    <div :class="{ active: hive.active }" class="hiveinfo" v-for="hive in gameData.hive" :key="hive.id" @click="activateHive(hive)">
+      <!-- Your hive content here -->
+      <h4>{{ hive.biome }}</h4>
+      <ul>
+      <li><span>Radius:</span> <span>{{ formatNumber(hive.radius, "cm") }}</span></li>
+      <li><span> {{ COMMON_NAMES.RESOURCES.BIOMASS.NAME }}:</span><span> {{ formatNumber(hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount, 'mg') }}</span> </li>
+      </ul>
+      <bar :barNumbers="[hive.area, hive.areaUsed]" :max="hive.maxArea"/>
+      <h4>Resources</h4>
+      <!-- <div v-show="hive.active" class="hiveResources"> -->
+      <div class="hiveResources">
+        <ul>
+          <template v-for="(resource, key) in hive[COMMON_NAMES.RESOURCES.NAME]">
+            <li v-if="resource.show == true && key !== 'Biomass'">
+                <span>{{ key }}:</span> {{ formatNumber(resource.amount, 'mg') }}
+            </li>
+          </template>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- <div id="hives">
       <div class="hiveinfo" v-for="hive in gameData.hive">
         <div class="expandable-div" :class="{ expanded: isExpanded }" @click="toggleExpansion">
           <span>Biome: {{ hive.biome }}</span>
           <span>Radius: {{ formatNumber(hive.radius, "cm") }}</span>
           <span class="hivearea">Area:</span>
           <bar :barNumbers="[60, 10]" :max="100"/>
-          <!-- <table style="margin-bottom: -3.5px" class="hiveAreaTable">
-            <thead>
-              <tr>
-                <th>Used</th>
-                <th></th>
-                <th>Occupied</th>
-                <th></th>
-                <th>Available</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{{ formatNumber(hive.areaUsed, "cm2") }}</td>
-                <td class="slash">/ </td>
-                <td>{{ formatNumber(hive.area, "cm2") }}</td>
-                <td class="slash">/</td>
-                <td>{{ formatNumber(hive.maxArea, "cm2") }} sq</td>
-              </tr>
-            </tbody>
-          </table> -->
           <div class="hiveResources">
               <div v-for="(resource, key) in hive[COMMON_NAMES.RESOURCES.NAME]">
                 <div v-if="resource.show == true">
@@ -53,7 +56,7 @@
           </ul>
         </div>
       </div> 
-  </div>
+  </div> -->
 </template>
   
 <script setup>
@@ -62,15 +65,41 @@
   import { COMMON_NAMES } from '@/assets/js/definitions.js'
   import { formatNumber, hiveManager } from '@/assets/js/functions.js';
   import bar from '@/components/subcomponents/bar.vue';
+  import hiveTotals from '@/components/totals.vue';
   
-  const isExpanded = ref(true);
-  
-  const toggleExpansion = () => {
-    isExpanded.value = !isExpanded.value;
-  };
+  const activateHive = (clickedHive) => {
+  gameData.value.hive.forEach((hive) => {
+    hive.active = hive === clickedHive;
+  });
+};
+  // const toggleExpansion = () => {
+  //   isExpanded.value = !isExpanded.value;
+  // };
 </script>
   
 <style scoped>
+  h4 {
+    display: block;
+    text-align: center;
+  }
+  h4:not(:first-child) {
+    margin-top: 10px;
+  }
+  li {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+  }
+  li::before {
+  content: '';
+  position: absolute;
+  opacity: 0.2;
+  bottom: 2px;
+  left: 0;
+  width: 100%;
+  border-bottom: 1px dashed var(--theme-text);
+  transform: translateY(-50%);
+  }
   /* Add styling for your expandable div here */
   .expandable-div {
     height: max-content;
@@ -88,14 +117,14 @@
     display: inline-block;
     width: 150px;
   }
-  .food span, .hiveResources span  {
+  /* .food span, .hiveResources span  {
     display: inline-block;
     width: 75px;
   }
   span {
     display: inline-block;
     width: 150px;
-  }
+  } */
   .hivearea {
     width: max-content;
     margin-right: 5px;
@@ -119,21 +148,35 @@
   .hiveinfo {
     display: block;
     box-sizing: border-box;
-    width: 100%;
+    overflow: hidden;
+    /* filter: blur(1px); */
+    opacity: 0.5;
+    height: 250px;
+    /* width: 250px; */
     padding: 10px;
+    transform: scale(0.9);
+    /* height: 75px; */
     margin: 0 0 10px 0;
     background:   var(--theme-secondary);
-    border: 1px solid var(--theme-tertiary);
+    border: 1px solid var(--theme-accent);
     border-radius: 5px;
-    color: wheat
+    color: wheat;
+    transition: all 0.3s ease;
+  }
+  .hiveinfo.active {
+    border: 1px solid var(--theme-tertiary);
+    /* height: 200px; */
+    /* filter: blur(0px); */
+    transform: scale(1);
+    opacity: 1;
   }
   #hives {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
     width: 100%;
-    padding: 10px
+    padding: 10px 0;
   }
-  #hiveView {
-    box-sizing: border-box;
-    /* height: 100vh; */
-    overflow-y: auto;
-  }
+
 </style>
+
