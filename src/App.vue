@@ -71,8 +71,6 @@ function mainLoop() {
     gameData.value.date.timestamp = currentTime;
   }
 }
-// Create a ref to store the width of the element
-const heartbeatWidth = ref(0);
 
 
 // Use the onMounted hook to measure the element's width after it's mounted
@@ -81,6 +79,7 @@ onMounted(() => {
   // if (heartbeatElement.value) {
   //   heartbeatWidth.value = heartbeatElement.value.offsetWidth;
   // }
+  gameData.value.hive.find(item => item.id === 0).active = true;
   mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
 });
 
@@ -89,155 +88,23 @@ onMounted(() => {
 
 <template>
   <main class="flexContainerVertical">
-    <topbar/>
-    <div class="flexContainerHorizontal flexChild95">
-      <!-- <div id="hiveView" class="flexChild40 flexChildVertical">
-        <div class="heartBeat" ref="heartbeatElement">
-          <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(gameData.heart.amount, gameData.heart.max, heartbeatWidth) + 'px' }"/>
-          <progress class="growth-progress" :value="gameData.heart.amount" :max="gameData.heart.max"></progress>
-        </div>   
-        <div id="resourceoverview"></div>
-        <div id="hives">
-          <div class="hiveinfo" v-for="hive in gameData.hive">  
-              <span>Biome: {{ hive.biome }}</span>
-              <span>Radius: {{ formatNumber(hive.radius, "cm") }}</span>
-              <span class="hivearea">Area:</span>
-              <table style="margin-bottom: -3.5px" class="hiveAreaTable">
-                <thead>
-                  <tr>
-                    <th>Used</th>
-                    <th></th>
-                    <th>Occupied</th>
-                    <th></th>
-                    <th>Available</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{{ formatNumber(hive.areaUsed, "cm2") }}</td>
-                    <td class="slash">/ </td>
-                    <td>{{ formatNumber(hive.area, "cm2") }}</td>
-                    <td class="slash">/</td>
-                    <td>{{ formatNumber(hive.maxArea, "cm2") }} sq</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="hiveResources">
-                  <div v-for="(resource, key) in hive[COMMON_NAMES.RESOURCES.NAME]">
-                    <div v-if="resource.show == true">
-                        {{ key }}: {{ formatNumber(resource.amount, 'mg') }}
-                      </div>
-                  </div>
-              </div>
-              <p>-</p>
-              <ul>
-                <template v-for="(category, key) in hive[COMMON_NAMES.FOOD.NAME]">
-                  <li v-if="category.show === true">
-                  {{ key }}
-                    <ul>
-                      <template v-for="(resource, subKey) in category">
-                        <li v-if="resource.show === true">
-                          <span>{{ subKey }} :</span>
-                          <span>{{ formatNumber(resource.amount) }}</span> 
-                          <button @click="eatFood(key, hive, subKey)">Eat</button>
-                        </li>
-                      </template>
-                    </ul>
-                  </li>
-                </template>
-              </ul>
-          </div>
-        </div>
-        <div id="hiveTotals">
-          <h3>Hive total</h3>
-          <ul>
-            <li v-for="(amount, label) in gameData.genes" :key="label">
-              {{ label }}: {{ formatNumber(amount) }} 
-            </li>
-          </ul>
-          <ul>
-            <li v-for="(amount, label) in gameData.resources" :key="label">
-              {{ label }}: {{ formatNumber(amount, "mg") }} 
-            </li>
-          </ul>
-        </div>
-      </div> -->
+    <topbar />
+    <div class="flexContainerHorizontal flexChild95">      
       <div id="hiveView" class="flexChild40 flexChildVertical">
-        <div class="heartBeat">
-          <font-awesome-icon class="heartIcon" icon="heart" :style="{ left: calculateHeartPosition(gameData.heart.amount, gameData.heart.max, heartbeatWidth) + 'px' }"/>
-          <!-- <progress class="growth-progress" :value="gameData.heart.amount" :max="gameData.heart.max"></progress> -->
-          <div class="progress-heart" style="color: black">
-            {{  gameData.heart.amountPercent }}
-          </div>
-        </div>
-        <hiveTotals/>
         <hiveInfo/>
       </div>
-      <mainMenu/>
-      <aside id="rightHandMenu" class="flexChild60 flexChildVertical">
-        
-        <!-- <nav id="appTabs">
-          <a @click="tabs('hives')" :class="{ active: tabMapping.hive}" href="#">Hives</a>
-          <a @click="tabs('mutations')" :class="{ active: tabMapping.mutations}" href="#">Mutations</a>
-          <a @click="tabs('research')" :class="{ active: tabMapping.research}" href="#">Research</a>
-          <a @click="tabs('grow')" :class="{ active: tabMapping.grow}" href="#">Grow</a>
-        </nav>  
-        <div id="tabContent">
-          <div v-show="tabMapping.hives">
-            <h3>Mutations are here</h3>
-          </div>
-          <div v-show="tabMapping.muations">
-              <h3>Mutations are here</h3>
-          </div>
-          <div v-show="tabMapping.research">
-            <div v-for="(research, key) in researchInfo.tierBiome">
-                <tooltip class="purchaseButton" v-if="gameData.research.tierBiome[key].available && !gameData.research.tierBiome[key].unlocked">
-                  <button @click="unlockResearch(key)">{{ key }}</button>
-                  <template #tooltip>
-                      <h3>{{ key }}</h3>
-                      <span>{{ research.description }}</span>
-                      <ul>
-                        <li v-for="(cost, key) in research.cost.genes">{{ key }}: {{ cost }}</li>
-                      </ul>
-                      <ul>
-                        <li v-for="(cost, key) in research.cost.resources">{{ key }}: {{ cost }}</li>
-                      </ul>
-                  </template>
-                </tooltip>
-            </div>
-          </div>
-          <div v-show="tabMapping.grow">
-            <h3>Growing is here</h3>
-            <button @click="addHive('Desert')" id="addHive">add hive</button>
-          </div>
-        </div> -->
+    
+    <aside id="rightHandMenu" class="flexChild60 flexChildVertical">
+      <mainMenu />
     </aside>
     </div>
-  </div>
-  <button @click="mainLoop()">Tick</button>
+  </main>
   <devArea/>
-  <!-- <div id="devArea">
-    <div v-if="showDev" id="dev">
-      <h4>I am some debug info</h4>
-      <div class="flexContainerHorizontal">
-        <div class="buttons">
-        <button @click="heartBeat()">Tick</button>
-        <button @click="gameData.heart.amount = gameData.heart.max">Max heart</button>
-        <button @click="gameData.hive[0].radiusPerBeat += 100">Increase radius per beat 100</button>
-        <button @click="gameData.hive[0].radiusPerBeat += 1000">Increase radius per beat 1000</button>
-        <button @click="gameData.hive[0].radiusPerBeat += 10000">Increase radius per beat 10000</button>
-        <button @click="gameData.hive[0].radiusPerBeat += 1000000000">Increase radius per beat 1000000000</button>
-        </div>
-        <pre>{{ gameData }}</pre>
-      </div>
-    </div>
-    <button @click="showDev = !showDev">Toggle Dev</button>
-  </div> -->
-</template>
+ </template>
 
 <style scoped>
 @import "@/assets/css/themes.css";
+
   main {
    
   }
@@ -292,42 +159,11 @@ onMounted(() => {
   .food {
     display: inline-block;
   }
-  #rightHandMenu {
-    position: relative;
-  }
-  #tabContent {
-    margin-top: 35px;
-    border-top: 3px solid var(--theme-accent);
-  }
-  #appTabs {
-    position: absolute;
-    padding: 5px;
-    width: 100%;
-    height: 35px;
-  }
-  #appTabs a {
-    display: inline-block;
+  #hiveView {
     box-sizing: border-box;
-    padding: 5px 20px;
-    margin-right: 10px;
-    width: max-content;
-    border: 3px solid transparent;
-    /* border-bottom: 3px solid var(--theme-accent); */
-    text-decoration: none;
-    color: var(--theme-accent);
-  }
-  #appTabs a.active {
-    background: var(--theme-background);
-    border: 3px solid var(--theme-accent);
-    border-radius: 3px;
-    border-bottom: 3px solid transparent;
-  }
-.heartBeat {
-    position: relative;
-    box-sizing: border-box;
-    padding: 5px;
-    width: 100%;
-    background: var(--theme-accent);
+    padding: 10px;
+    /* height: 100vh; */
+    overflow-y: auto;
   }
 /* Style the progress bar container */
   .growth-progress {
@@ -357,7 +193,9 @@ onMounted(() => {
       border-radius: 0;
     }
   }
- 
+ #rightHandMenu {
+    position: relative;
+  }
   .progress-heart {
     width: 25%;
     transform-origin: 0% 0%;
