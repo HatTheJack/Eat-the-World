@@ -47,41 +47,41 @@ export const COMMON_NAMES = {
         NAME: 'Flora',
         HERBACEOUS: {
             NAME: 'Herbaceous',
-            GENE: 'HerbaceousGene',
+            GENE: 'Herbaceous Gene',
         },
         ARBOREAL: {
             NAME: 'Arboreal',
-            GENE: 'ArborealGene',
+            GENE: 'Arboreal Gene',
         },
       },
     FAUNA: {
       NAME: 'Fauna',
       ARTHROPODS: {
           NAME: 'Arthropods',
-          GENE: 'ArthropodsGene',
+          GENE: 'Arthropods Gene',
       },
       MAMMALIA: {
           NAME: 'Mammalia',
-          GENE: 'MammaliaGene',
+          GENE: 'Mammalia Gene',
       },
       REPTILIA: {
           NAME: 'Reptilia',
-          GENE: 'ReptiliaGene',
+          GENE: 'Reptilia Gene',
       },
       AVES: {
           NAME: 'Aves',
-          GENE: 'AvesGene',
+          GENE: 'Aves Gene',
       },
       AQUATIC: {
           NAME: 'Aquatic',
-          GENE: 'AquaticGene',
+          GENE: 'Aquatic Gene',
       },
     },
     MISC: {
       NAME: 'Misc',
       FUNGI: {
           NAME: 'Fungi',
-          GENE: 'FungiGene',
+          GENE: 'Fungi Gene',
       },
       SENTIENTS: {
           NAME: 'Sentients',
