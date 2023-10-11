@@ -1,6 +1,6 @@
 <template>
     <div class="progress-bar">
-        <template class="progress-bar-index" v-for="number in barNumbersPercent" :key="index">
+        <template class="progress-bar-index" v-for="(number, index) in barNumbersPercent" :key="index">
             <div class="progress-bar-bar"  :style="{ transform: 'scaleX('+ number +')' }"></div>
             <div v-if="props.showNumbers" class="progress-bar-number">{{ number }}</div> 
         </template>
