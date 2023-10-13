@@ -248,23 +248,23 @@ export function heartBeat(delta) {
 }
 
 
-export function main_loop() {
-  let prevTime = gameData.value.date.timestamp;
-  let currentTime = performance.now();
-  let delta = (currentTime - prevTime);
-  gameData.value.date.timestamp = currentTime;
-  // do stuff
-  // check if biomass is greater than pertick
-  if (gameData.value.hive[0][COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount >= gameData.value.heart.pertick) {
-    for ( hive in gameData.hive) {
-      hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount -= gameData.value.heart.pertick;
-    }
+// export function main_loop() {
+//   let prevTime = gameData.value.date.timestamp;
+//   let currentTime = performance.now();
+//   let delta = (currentTime - prevTime);
+//   gameData.value.date.timestamp = currentTime;
+//   // do stuff
+//   // check if biomass is greater than pertick
+//   if (gameData.value.hive[0][COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount >= gameData.value.heart.pertick) {
+//     for ( hive in gameData.hive) {
+//       hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount -= gameData.value.heart.pertick;
+//     }
 
 
     
 
   
-}
+// }
 
 export function mainLoop(forced) {
   if (gameData.value.paused === false || forced === true) { 

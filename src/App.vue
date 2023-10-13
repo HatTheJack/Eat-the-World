@@ -110,7 +110,7 @@ onMounted(() => {
     flex: 40;
   }  
   .flexChild60 {
-    flex:60;
+    flex: 60;
   }  
   .flexChildVertical:first-child {
     margin-right: 10px;

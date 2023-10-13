@@ -98,7 +98,7 @@
   left: 0;
   width: 100%;
   border-bottom: 1px dashed var(--theme-text);
-  transform: translateY(-50%);
+  /* transform: translateY(-50%); */
   }
   /* Add styling for your expandable div here */
   .expandable-div {
