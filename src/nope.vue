@@ -11,7 +11,7 @@
     <ul>
       <li>
         <span>Food</span>
-        <span><span>{{ gameData.items.food.formattedAmount }} / {{ gameData.items.food.max }}</span>  {{ gameData.items.food.rateGained.total - gameData.items.food.rateLost.total }}</span></li>
+        <span><span>{{ gameData.items.food.formattedAmount }} / {{ gameData.items.food.formattedMax }}</span>  {{ gameData.items.food.rateGained.total - gameData.items.food.rateLost.total }}</span></li>
       <li>
         <span>Resources</span>
         <span><span>{{  gameData.items.resource.formattedAmount }}</span>{{ gameData.items.resource.rateGained.total - gameData.items.resource.rateLost.total }}</span>
@@ -23,7 +23,7 @@
       <li>
         <span>Auto Eat Food</span>
         <span><span>{{ gameData.upgrades.autoEatFood.amount }}</span> {{ gameData.upgrades.autoEatFood.rateFood * gameData.upgrades.autoEatFood.amount }}</span>
-        <span><button @click="buyUpgrade()">Buy</button></span>   test: {{gameData.items.food.rateLost.eating.autoEatFood}}
+        <span><button @click="buyUpgrade()">Buy</button></span>
       </li>
     </ul>
   </main>
@@ -34,6 +34,9 @@
 
   <button @click="loop();">Tick</button>
   <button @click="console.clear">Clear</button>
+  <button @click="handleEating">handleEating</button>
+  <button @click="getMaxDelta">getMaxDelta</button>
+  <button @click="togglePause()">{{ gameData.isPaused ? "Resume" : "Pause" }}</button>
 </template>
 
 <script setup>  
@@ -49,9 +52,6 @@ const gameData = ref({
         max: 100,
         rateLost: {
             total: 0,
-            eating: {
-                total: 0,
-            },
         },
         rateGained: {
             total: 3,
@@ -75,9 +75,6 @@ const gameData = ref({
         },
         rateGained: {
             total: 0,
-            eating: {
-                total: 0,
-            },
         },
     },
     resource: {
@@ -87,13 +84,12 @@ const gameData = ref({
         },
         rateGained: {
             total: 0,
-            eating: {
-                total: 0,
-            },
         },
     },
   },
   timestamp: 0,
+  accumulatedDeltaTime: 15,
+  isPaused: false,
   upgrades: {
     autoEatFood: {
       amount: 0,
@@ -103,18 +99,22 @@ const gameData = ref({
   },
 });
 
+function togglePause() {
+  gameData.value.isPaused = !gameData.value.isPaused;
+}
+
 function getAmountToEat(itemName) {
   let item = gameData.value.items[itemName]; 
+  
 
-
-  // check if itemName has rateGained.eating property#
+  // check if itemName has rateGained.eating property
   if (item.rateGained?.eating) {
     let propertiesToFilter = item.rateGained.eating;
     let filteredProperties = Object.keys(item.rateGained.eating).filter(eat => eat !== 'total');
     
     if (filteredProperties.length > 0) {
       for (const food of filteredProperties) {
-        
+        console.log(food);
       }
     }
   } else if (!item.rateLost?.eating) {
@@ -159,6 +159,9 @@ function setupFormatNumber() {
   for (const itemName in gameData.value.items) {
     const item = gameData.value.items[itemName];
     item.formattedAmount = computed(() => formatNumber(item.amount));
+    if (item.max) {
+      item.formattedMax = computed(() => formatNumber(item.max));
+    }
   }
 }
 
@@ -204,24 +207,42 @@ function checkPossibleUpgrades(upgrade) {
 // function to buy an upgrade. adds the upgrade's rateFood to the food's rateLost.eating.food property
 function buyUpgrade() {
   gameData.value.upgrades.autoEatFood.amount += 1;
+
   gameData.value.items.food.rateLost.total += gameData.value.upgrades.autoEatFood.rateFood;
+
+  
+  if (!gameData.value.items.food.rateLost.eating?.autoEatFood) {
+    gameData.value.items.food.rateLost.eating.autoEatFood = 0;
+  }
   gameData.value.items.food.rateLost.eating.autoEatFood = gameData.value.upgrades.autoEatFood.rateFood * gameData.value.upgrades.autoEatFood.amount;
 
   let biomassGained = gameData.value.upgrades.autoEatFood.rateFood * values.value.food.biomass;
-  gameData.value.items.biomass.rateGained.eating.total += biomassGained;
-
-  if (!gameData.value.items.biomass.rateGained.eating.autoEatFood) {
+  let resourceGained = gameData.value.upgrades.autoEatFood.rateFood * values.value.food.resource;
+  
+  gameData.value.items.biomass.rateGained.total += biomassGained;
+  gameData.value.items.resource.rateGained.total += resourceGained;
+  
+  if (!gameData.value.items.biomass.rateGained.eating?.autoEatFood) {
     gameData.value.items.biomass.rateGained.eating.autoEatFood = 0;
   }
+  if (!gameData.value.items.biomass.rateGained.eating?.total) {
+    gameData.value.items.biomass.rateGained.eating.total = 0;
+  }
   gameData.value.items.biomass.rateGained.eating.autoEatFood += biomassGained;
+  gameData.value.items.biomass.rateGained.eating.total = biomassGained;
 
-  let resourceGained = gameData.value.upgrades.autoEatFood.rateFood * values.value.food.resource;
-  gameData.value.items.resource.rateGained.eating.total += resourceGained;
-
+  
+ 
+  
+  
   if (!gameData.value.items.resource.rateGained.eating.autoEatFood) {
     gameData.value.items.resource.rateGained.eating.autoEatFood = 0;
   }
+  if (!gameData.value.items.resource.rateGained.eating.total) {
+    gameData.value.items.resource.rateGained.eating.total = 0;
+  }
   gameData.value.items.resource.rateGained.eating.autoEatFood += resourceGained;
+  gameData.value.items.resource.rateGained.eating.total += resourceGained;
 }
 
 const tweened = ref({}); // Make tweened a ref
@@ -240,55 +261,126 @@ function setupTweenedData(data, targetObject) {
     }
   }
 }
+function handleEating() {
+    const item = gameData.value.items.resource;
+    // check if item has eating property 
+    if (item.rateGained?.eating) {
+    console.log(item);
+    // get amount to eat
+    let amountToEat = item.rateGained.eating.total;
+    // check each property in eating except total and see how many each upgrade there is for each property
+    for (const food in item.rateGained.eating) {
+      if (food !== 'total') {
+        // get amount of upgrades to run
+        let upgradesToRun = checkPossibleUpgrades(food);
+        // add amount of upgrades to run to amount to eat
+        amountToEat += item.rateGained.eating[food] * upgradesToRun;
+        // add amount of upgrades to run to changes
+        changes[itemName] = ( gained - lost ) * deltaTime;
+      }
+    }
+  }
+}
+function handleUpdating() {
+  for (const itemName in gameData.value.items) {
+    const item = gameData.value.items[itemName];
 
+    let gained = item.rateGained?.total ?? 0;
+    let lost = item.rateLost?.total ?? 0;
+    let max = item.max ?? Infinity;
+
+    item.amount = Math.min(Math.max(0, item.amount + (gained - lost)), max);
+
+    if (item.max !== undefined) {
+      item.max += item.rateGained.expansion.total;
+    }
+  }
+}
+
+function handleChange() {
+
+}
+
+// check biomass and all food and get maximum delta possible
+function getMaxDelta() {
+  let deltaTime = gameData.value.accumulatedDeltaTime;
+  let deltas = [];
+  if (deltaTime <= 0) return;
+
+  for (const itemName in gameData.value.items) {    
+    if (gameData.value.items[itemName].rateLost.eating !== undefined) continue;
+    const item = gameData.value.items[itemName];
+    let lost = item.rateLost?.eating?.total ?? 0;
+    console.log(lost);
+    console.log(itemName);
+
+    let maxDelta = item.amount;
+
+    deltaTime = Math.min(deltaTime, maxDelta);
+  }
+}
 
 function loop() {
-  // console.time();
+  if (gameData.value.isPaused) return;
+  // set up deltatime
   let currentTimestamp = performance.now();
-  let deltaTime = (currentTimestamp - gameData.value.timestamp) / 1000;
+  // let deltaTime = (currentTimestamp - gameData.value.timestamp) / 1000;
+  gameData.value.accumulatedDeltaTime += (currentTimestamp - gameData.value.timestamp) / 1000;
+  console.log(gameData.value.accumulatedDeltaTime);
   gameData.value.timestamp = performance.now();
 
-  let checkUpgradesToRun = checkPossibleUpgrades("autoEatFood");
+  // check maximum delta time achieveable
+  let maxdeltaTime = getMaxDelta();
 
-  // init changes object
-  let changes = {};
+  // make changes based on gamedata gained and lost
+  handleUpdating();
 
-  // check if there is enough biomass to expand
-  let enoughBiomassToExpand = gameData.value.items.biomass.amount >= gameData.value.items.biomass.rateLost.expansion.total ? 1 : 0;
+  // update gameobject array with new calculated changes
+  // dont need to update births
+  handleChange();
+
+
+
+  // let checkUpgradesToRun = checkPossibleUpgrades("autoEatFood");
+
+  // // init changes object
+  // let changes = {};
+
+  // // check if there is enough biomass to expand
+  // let enoughBiomassToExpand = gameData.value.items.biomass.amount >= gameData.value.items.biomass.rateLost.expansion.total ? 1 : 0;
   
-  // calculate size of expansion
-  let expansionSize = gameData.value.items.biomass.rateLost.expansion.total;
+  // // calculate size of expansion
+  // let expansionSize = gameData.value.items.biomass.rateLost.expansion.total;
   
   
-  // loop over each object in items and calculate expansion rategains and losses and assign the difference to change variable
-    for ( const itemName in gameData.value.items) {
+  // // loop over each object in items and calculate expansion rategains and losses and assign the difference to change variable
+  //   for ( const itemName in gameData.value.items) {
+  //     // handle expansion
+  //     const item = gameData.value.items[itemName];
+  //     let gained = item.rateGained?.expansion?.total ?? 0;
+  //     let lost = item.rateLost?.expansion?.total ?? 0;
+  //     gained *= expansionSize;
+  //     lost *= expansionSize;
+  //     gained *= enoughBiomassToExpand;
+  //     lost *= enoughBiomassToExpand;
 
-      // handle expansion
-      const item = gameData.value.items[itemName];
-      let gained = item.rateGained?.expansion?.total ?? 0;
-      let lost = item.rateLost?.expansion?.total ?? 0;
-      gained *= expansionSize;
-      lost *= expansionSize;
-      gained *= enoughBiomassToExpand;
-      lost *= enoughBiomassToExpand;
-
-      // handle eating
-      getAmountToEat(itemName);
+  //     // handle eating
+  //     handleEating();
       
 
-      // handle births
-      gained += item.rateGained?.births?.total ?? 0;
+  //     // handle births
+  //     gained += item.rateGained?.births?.total ?? 0;
       
-      changes[itemName] = ( gained - lost ) * deltaTime;
+  //     changes[itemName] = ( gained - lost ) * deltaTime;
 
-      if (item.max) {
-        item.amount = Math.max(0, Math.min(item.max, item.amount + changes[itemName]));
-        item.max += 2 * enoughBiomassToExpand;
-      } else {
-        item.amount = Math.max(0, item.amount + changes[itemName]);
-      }
+  //     if (item.max) {
+  //       item.amount = Math.max(0, Math.min(item.max, item.amount + changes[itemName]));
+  //       item.max += 2 * enoughBiomassToExpand;
+  //     } else {
+  //       item.amount = Math.max(0, item.amount + changes[itemName]);
+  //     }
 
-    }
+  //   }
 
 
 
@@ -304,7 +396,6 @@ function loop() {
   //   }
 
   // }
-  // console.timeEnd();
 }
 
 onMounted(() => {
