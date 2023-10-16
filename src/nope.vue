@@ -1,6 +1,5 @@
 <template>
-  <div id="all">
-    <main>
+      <main>
       <li>
           <span>Biomass</span>
           <span>
@@ -29,7 +28,7 @@
       </ul>
     </main>
     
-    <!-- {{ tweened }} -->
+    {{ tweened }}
     <span v-show="gameData.expand">expand</span>
     <span v-show="gameData.eat">eat</span>
 
@@ -38,9 +37,7 @@
     <button @click="handleEating">handleEating</button>
     <button @click="getMaxDelta">getMaxDelta</button>
     <button @click="togglePause()">{{ gameData.isPaused ? "Resume" : "Pause" }}</button>
-    {{ gameData.accumulatedDeltaTime }}
-  </div>
-</template>
+    </template>
 
 <script setup>  
 import { ref, onMounted, watch, computed} from 'vue';
@@ -51,8 +48,8 @@ const gameData = ref({
   eat: false,
   items: {
     food: {
-        amount: 1000,
-        max: 1000,
+        amount: 10,
+        max: 100,
         rateLost: {
             total: 0,
         },
@@ -69,7 +66,7 @@ const gameData = ref({
         },
     },
     biomass: {
-        amount: 1000,
+        amount: 0,
         rateLost: {
             total: 10,
             expansion: {
