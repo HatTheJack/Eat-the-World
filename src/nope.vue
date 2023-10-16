@@ -1,42 +1,45 @@
 <template>
-  <main>
-    <li>
-        <span>Biomass</span>
-        <span>
-          <span>{{ gameData.items.biomass.formattedAmount }}</span>
-          {{ gameData.items.biomass.rateGained.total - gameData.items.biomass.rateLost.total}}
-        </span>
-    </li>
-    <p>-</p>
-    <ul>
+  <div id="all">
+    <main>
       <li>
-        <span>Food</span>
-        <span><span>{{ gameData.items.food.formattedAmount }} / {{ gameData.items.food.formattedMax }}</span>  {{ gameData.items.food.rateGained.total - gameData.items.food.rateLost.total }}</span></li>
-      <li>
-        <span>Resources</span>
-        <span><span>{{  gameData.items.resource.formattedAmount }}</span>{{ gameData.items.resource.rateGained.total - gameData.items.resource.rateLost.total }}</span>
+          <span>Biomass</span>
+          <span>
+            <span>{{ gameData.items.biomass.formattedAmount }}</span>
+            {{ gameData.items.biomass.rateGained.total - gameData.items.biomass.rateLost.total}}
+          </span>
       </li>
-    </ul>
-    <button @click="eat('food', 1)">Eat</button>
+      <p>-</p>
+      <ul>
+        <li>
+          <span>Food</span>
+          <span><span>{{ gameData.items.food.formattedAmount }} / {{ gameData.items.food.formattedMax }}</span>  {{ gameData.items.food.rateGained.total - gameData.items.food.rateLost.total }}</span></li>
+        <li>
+          <span>Resources</span>
+          <span><span>{{  gameData.items.resource.formattedAmount }}</span>{{ gameData.items.resource.rateGained.total - gameData.items.resource.rateLost.total }}</span>
+        </li>
+      </ul>
+      <button @click="eat('food', 1)">Eat</button>
 
-    <ul>
-      <li>
-        <span>Auto Eat Food</span>
-        <span><span>{{ gameData.upgrades.autoEatFood.amount }}</span> {{ gameData.upgrades.autoEatFood.rateFood * gameData.upgrades.autoEatFood.amount }}</span>
-        <span><button @click="buyUpgrade()">Buy</button></span>
-      </li>
-    </ul>
-  </main>
+      <ul>
+        <li>
+          <span>Auto Eat Food</span>
+          <span><span>{{ gameData.upgrades.autoEatFood.amount }}</span> {{ gameData.upgrades.autoEatFood.rateFood * gameData.upgrades.autoEatFood.amount }}</span>
+          <span><button @click="buyUpgrade()">Buy</button></span>
+        </li>
+      </ul>
+    </main>
+    
+    <!-- {{ tweened }} -->
+    <span v-show="gameData.expand">expand</span>
+    <span v-show="gameData.eat">eat</span>
 
-  {{ tweened }}
-  <span v-show="gameData.expand">expand</span>
-  <span v-show="gameData.eat">eat</span>
-
-  <button @click="loop();">Tick</button>
-  <button @click="console.clear">Clear</button>
-  <button @click="handleEating">handleEating</button>
-  <button @click="getMaxDelta">getMaxDelta</button>
-  <button @click="togglePause()">{{ gameData.isPaused ? "Resume" : "Pause" }}</button>
+    <button @click="loop();">Tick</button>
+    <button @click="console.clear">Clear</button>
+    <button @click="handleEating">handleEating</button>
+    <button @click="getMaxDelta">getMaxDelta</button>
+    <button @click="togglePause()">{{ gameData.isPaused ? "Resume" : "Pause" }}</button>
+    {{ gameData.accumulatedDeltaTime }}
+  </div>
 </template>
 
 <script setup>  
@@ -48,8 +51,8 @@ const gameData = ref({
   eat: false,
   items: {
     food: {
-        amount: 10,
-        max: 100,
+        amount: 1000,
+        max: 1000,
         rateLost: {
             total: 0,
         },
@@ -66,7 +69,7 @@ const gameData = ref({
         },
     },
     biomass: {
-        amount: 0,
+        amount: 1000,
         rateLost: {
             total: 10,
             expansion: {
@@ -203,17 +206,33 @@ function checkPossibleUpgrades(upgrade) {
   return upgradesToRun;
 }
 
+function initObject(object, source) {
+  if (!source[object]) {
+    source[object] = {};
+  }  
+}
+
 
 // function to buy an upgrade. adds the upgrade's rateFood to the food's rateLost.eating.food property
 function buyUpgrade() {
   gameData.value.upgrades.autoEatFood.amount += 1;
 
   gameData.value.items.food.rateLost.total += gameData.value.upgrades.autoEatFood.rateFood;
-
   
+
+  initObject(`eating`, gameData.value.items.food.rateLost);
+  for (const itemName in values.value.food) {
+    initObject(`eating`, gameData.value.items[itemName].rateGained);
+  }
+
+
   if (!gameData.value.items.food.rateLost.eating?.autoEatFood) {
     gameData.value.items.food.rateLost.eating.autoEatFood = 0;
   }
+  if (!gameData.value.items.food.rateLost.eating?.autoEatFood) {
+    gameData.value.items.food.rateLost.eating.total = 0;
+  }
+  gameData.value.items.food.rateLost.eating.total = gameData.value.upgrades.autoEatFood.rateFood * gameData.value.upgrades.autoEatFood.amount;
   gameData.value.items.food.rateLost.eating.autoEatFood = gameData.value.upgrades.autoEatFood.rateFood * gameData.value.upgrades.autoEatFood.amount;
 
   let biomassGained = gameData.value.upgrades.autoEatFood.rateFood * values.value.food.biomass;
@@ -250,7 +269,6 @@ const tweened = ref({}); // Make tweened a ref
 function setupTweenedData(data, targetObject) {
   for (const key in data) {
     if (typeof data[key] === 'object') {
-      // console.log(data[key])
       setupTweenedData(data[key], targetObject);
     } else if (key === 'amount') {
       // Use ref for each 'amount' property
@@ -281,7 +299,7 @@ function handleEating() {
     }
   }
 }
-function handleUpdating() {
+function handleUpdating(deltaTime) {
   for (const itemName in gameData.value.items) {
     const item = gameData.value.items[itemName];
 
@@ -289,6 +307,8 @@ function handleUpdating() {
     let lost = item.rateLost?.total ?? 0;
     let max = item.max ?? Infinity;
 
+    gained *= deltaTime;
+    lost *= deltaTime;
     item.amount = Math.min(Math.max(0, item.amount + (gained - lost)), max);
 
     if (item.max !== undefined) {
@@ -302,105 +322,63 @@ function handleChange() {
 }
 
 // check biomass and all food and get maximum delta possible
-function getMaxDelta() {
+function getMaxDelta() {  
   let deltaTime = gameData.value.accumulatedDeltaTime;
   let deltas = [];
-  if (deltaTime <= 0) return;
+
+  if (deltaTime <= 0) return Infinity;
 
   for (const itemName in gameData.value.items) {    
-    if (gameData.value.items[itemName].rateLost.eating !== undefined) continue;
     const item = gameData.value.items[itemName];
-    let lost = item.rateLost?.eating?.total ?? 0;
-    console.log(lost);
-    console.log(itemName);
+    if (!item.rateLost.hasOwnProperty("eating")) continue;
 
-    let maxDelta = item.amount;
-
-    deltaTime = Math.min(deltaTime, maxDelta);
+    let maxDelta = item.amount / item.rateLost.eating.total;
+    
+    deltas.push(maxDelta);
   }
+
+  let maxDelta = gameData.value.items.biomass.amount / gameData.value.items.biomass.rateLost.expansion.total;
+  deltas.push(maxDelta);
+
+  if (deltas.length === 0) { 
+    return Infinity;
+  }
+
+  else {
+    return Math.min(...deltas);
+  }  
 }
 
 function loop() {
   if (gameData.value.isPaused) return;
-  // set up deltatime
+
   let currentTimestamp = performance.now();
-  // let deltaTime = (currentTimestamp - gameData.value.timestamp) / 1000;
-  gameData.value.accumulatedDeltaTime += (currentTimestamp - gameData.value.timestamp) / 1000;
-  console.log(gameData.value.accumulatedDeltaTime);
+  let deltaTime = (currentTimestamp - gameData.value.timestamp) / 1000;
   gameData.value.timestamp = performance.now();
 
-  // check maximum delta time achieveable
+  if (deltaTime >= 2) {
+  gameData.value.accumulatedDeltaTime += (currentTimestamp - gameData.value.timestamp) / 1000;  
+  }
   let maxdeltaTime = getMaxDelta();
+  maxdeltaTime = Math.min(deltaTime, gameData.value.accumulatedDeltaTime);
+  gameData.value.accumulatedDeltaTime -= maxdeltaTime;
+  // console.log(deltaTime);
 
-  // make changes based on gamedata gained and lost
-  handleUpdating();
+  // // make changes based on gamedata gained and lost
+  handleUpdating(deltaTime);
 
-  // update gameobject array with new calculated changes
-  // dont need to update births
-  handleChange();
+  // // update gameobject array with new calculated changes
+  // // dont need to update births
+  // handleChange();
 
 
 
-  // let checkUpgradesToRun = checkPossibleUpgrades("autoEatFood");
-
-  // // init changes object
-  // let changes = {};
-
-  // // check if there is enough biomass to expand
-  // let enoughBiomassToExpand = gameData.value.items.biomass.amount >= gameData.value.items.biomass.rateLost.expansion.total ? 1 : 0;
   
-  // // calculate size of expansion
-  // let expansionSize = gameData.value.items.biomass.rateLost.expansion.total;
-  
-  
-  // // loop over each object in items and calculate expansion rategains and losses and assign the difference to change variable
-  //   for ( const itemName in gameData.value.items) {
-  //     // handle expansion
-  //     const item = gameData.value.items[itemName];
-  //     let gained = item.rateGained?.expansion?.total ?? 0;
-  //     let lost = item.rateLost?.expansion?.total ?? 0;
-  //     gained *= expansionSize;
-  //     lost *= expansionSize;
-  //     gained *= enoughBiomassToExpand;
-  //     lost *= enoughBiomassToExpand;
-
-  //     // handle eating
-  //     handleEating();
-      
-
-  //     // handle births
-  //     gained += item.rateGained?.births?.total ?? 0;
-      
-  //     changes[itemName] = ( gained - lost ) * deltaTime;
-
-  //     if (item.max) {
-  //       item.amount = Math.max(0, Math.min(item.max, item.amount + changes[itemName]));
-  //       item.max += 2 * enoughBiomassToExpand;
-  //     } else {
-  //       item.amount = Math.max(0, item.amount + changes[itemName]);
-  //     }
-
-  //   }
-
-
-
-
-  // apply changes to each item amount 
-  // for ( const itemName in changes) {
-  //   const item = gameData.value.items[itemName];
-  //   if (item.max) {
-  //     item.amount = Math.max(0, Math.min(item.max, item.amount + changes[itemName]));
-  //     item.max += 2;
-  //   } else {
-  //     item.amount = Math.max(0, item.amount + changes[itemName]);
-  //   }
-
-  // }
 }
 
 onMounted(() => {
   setInterval(() => {
-    // loop();
+    loop();
 
     // gameData.value.food.amount += gameData.value.food.rateGained.births;
 
@@ -430,6 +408,15 @@ setupFormatNumber();
 </script>
 
 <style scoped>
+button {
+  padding: 5px;
+  margin: 5px;
+}
+#all {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 main {
   width: 300px;
 }
