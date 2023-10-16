@@ -1,23 +1,29 @@
 <template>
-  <main>
-    <li>
-        <span>Biomass</span>
-        <span>
-          <span>{{ gameData.items.biomass.formattedAmount }}</span>
-          {{ gameData.items.biomass.rateGained.total - gameData.items.biomass.rateLost.total}}
-        </span>
-    </li>
-    <p>-</p>
-    <ul>
+  <div id="loading-screen">
+  <p>Loading...</p>
+  <progress id="loading-progress-bar" value="0" max="100"></progress>
+</div>
+
+  <div id="all">
+    <main>
       <li>
-        <span>Food</span>
-        <span><span>{{ gameData.items.food.formattedAmount }} / {{ gameData.items.food.formattedMax }}</span>  {{ gameData.items.food.rateGained.total - gameData.items.food.rateLost.total }}</span></li>
-      <li>
-        <span>Resources</span>
-        <span><span>{{  gameData.items.resource.formattedAmount }}</span>{{ gameData.items.resource.rateGained.total - gameData.items.resource.rateLost.total }}</span>
+          <span>Biomass</span>
+          <span>
+            <span>{{ gameData.items.biomass.amount }}</span>
+            {{ gameData.items.biomass.rateGained.total - gameData.items.biomass.rateLost.total}}
+          </span>
       </li>
-    </ul>
-    <button @click="eat('food', 1)">Eat</button>
+      <p>-</p>
+      <ul>
+        <li>
+          <span>Food</span>
+          <span><span>{{ gameData.items.food.formattedAmount }} / {{ gameData.items.food.formattedMax }}</span>  {{ gameData.items.food.rateGained.total - gameData.items.food.rateLost.total }}</span></li>
+        <li>
+          <span>Resources</span>
+          <span><span>{{  gameData.items.resource.formattedAmount }}</span>{{ gameData.items.resource.rateGained.total - gameData.items.resource.rateLost.total }}</span>
+        </li>
+      </ul>
+      <button @click="eat('food', 1)">Eat</button>
 
     <ul>
       <li>
@@ -32,15 +38,18 @@
   <span v-show="gameData.expand">expand</span>
   <span v-show="gameData.eat">eat</span>
 
-  <button @click="loop();">Tick</button>
-  <button @click="console.clear">Clear</button>
-  <button @click="handleEating">handleEating</button>
-  <button @click="getMaxDelta">getMaxDelta</button>
-  <button @click="togglePause()">{{ gameData.isPaused ? "Resume" : "Pause" }}</button>
+    <button @click="loop();">Tick</button>
+    <button @click="console.clear">Clear</button>
+    <button @click="handleEating()">handleEating</button>
+    <button @click="getMaxTicks()">getMaxDelta</button>
+    <button @click="togglePause()">{{ gameData.isPaused ? "Resume" : "Pause" }}</button>
+    <button @click="save()">Save</button>"
+    {{ gameData.accumulatedDeltaTime }}
+  </div>
 </template>
 
 <script setup>  
-import { ref, onMounted, watch, computed} from 'vue';
+import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue';
 import { formatNumber } from '@/assets/js/functions.js';
 
 const gameData = ref({
@@ -88,7 +97,7 @@ const gameData = ref({
     },
   },
   timestamp: 0,
-  accumulatedDeltaTime: 15,
+  accumulatedDeltaTime: 3600,
   isPaused: false,
   upgrades: {
     autoEatFood: {
@@ -98,6 +107,20 @@ const gameData = ref({
     },
   },
 });
+
+// Watch for changes and save to local storage
+
+
+
+
+function save() {
+  localStorage.setItem('gameData', JSON.stringify(gameData.value));
+}
+// Load the data from local storage on component creation
+const savedData = localStorage.getItem('gameData');
+if (savedData) {
+  Object.assign(gameData, JSON.parse(savedData));
+}
 
 function togglePause() {
   gameData.value.isPaused = !gameData.value.isPaused;
@@ -302,7 +325,7 @@ function handleChange() {
 }
 
 // check biomass and all food and get maximum delta possible
-function getMaxDelta() {
+function getMaxTicks() {  
   let deltaTime = gameData.value.accumulatedDeltaTime;
   let deltas = [];
   if (deltaTime <= 0) return;
@@ -328,50 +351,17 @@ function loop() {
   gameData.value.accumulatedDeltaTime += (currentTimestamp - gameData.value.timestamp) / 1000;
   console.log(gameData.value.accumulatedDeltaTime);
   gameData.value.timestamp = performance.now();
+  // gameData.value.accumulatedDeltaTime += deltaTime;  
 
-  // check maximum delta time achieveable
-  let maxdeltaTime = getMaxDelta();
+  // let maxdeltaTime = getMaxTicks();
+  // console.log("maxDelta: ",maxdeltaTime);
+  // maxdeltaTime = Math.min(maxdeltaTime, gameData.value.accumulatedDeltaTime);
+  // console.log(maxdeltaTime);
+  // gameData.value.accumulatedDeltaTime -= maxdeltaTime;
+  // console.log(deltaTime);
 
-  // make changes based on gamedata gained and lost
-  handleUpdating();
-
-  // update gameobject array with new calculated changes
-  // dont need to update births
-  handleChange();
-
-
-
-  // let checkUpgradesToRun = checkPossibleUpgrades("autoEatFood");
-
-  // // init changes object
-  // let changes = {};
-
-  // // check if there is enough biomass to expand
-  // let enoughBiomassToExpand = gameData.value.items.biomass.amount >= gameData.value.items.biomass.rateLost.expansion.total ? 1 : 0;
-  
-  // // calculate size of expansion
-  // let expansionSize = gameData.value.items.biomass.rateLost.expansion.total;
-  
-  
-  // // loop over each object in items and calculate expansion rategains and losses and assign the difference to change variable
-  //   for ( const itemName in gameData.value.items) {
-  //     // handle expansion
-  //     const item = gameData.value.items[itemName];
-  //     let gained = item.rateGained?.expansion?.total ?? 0;
-  //     let lost = item.rateLost?.expansion?.total ?? 0;
-  //     gained *= expansionSize;
-  //     lost *= expansionSize;
-  //     gained *= enoughBiomassToExpand;
-  //     lost *= enoughBiomassToExpand;
-
-  //     // handle eating
-  //     handleEating();
-      
-
-  //     // handle births
-  //     gained += item.rateGained?.births?.total ?? 0;
-      
-  //     changes[itemName] = ( gained - lost ) * deltaTime;
+  // // make changes based on gamedata gained and lost
+  handleUpdating(1);
 
   //     if (item.max) {
   //       item.amount = Math.max(0, Math.min(item.max, item.amount + changes[itemName]));
@@ -398,35 +388,64 @@ function loop() {
   // }
 }
 
-onMounted(() => {
-  setInterval(() => {
-    // loop();
+function rejoin() {
+  document.getElementById("loading-screen").style.display = "block";
+  let currentTimestamp = performance.now();
+  let deltaTime = (currentTimestamp - gameData.value.timestamp) / 1000;
+  gameData.value.timestamp = performance.now();
+  console.log(deltaTime);
 
-    // gameData.value.food.amount += gameData.value.food.rateGained.births;
+  const progressBar = document.getElementById("loading-progress-bar");
 
-    // if (gameData.value.Biomass.amount >= gameData.value.Biomass.rateLost) {
-    //   gameData.value.Biomass.expand = true;
-    //   setTimeout(() => {
-    //     gameData.value.Biomass.expand = false;
-    //   }, 1000);
-    //   // expend biomass
-    //   gameData.value.Biomass.amount -= gameData.value.Biomass.rateLost;
-    //   // expand to include more food and more max food
-    //   gameData.value.food.amount += Math.min(gameData.value.food.rateGained.expansion, gameData.value.food.max);
-    //   gameData.value.food.max += 1;
-    //   // consume food based on upgrade
-    //   if (gameData.value.food.amount >= gameData.value.food.rateLost.total && gameData.value.food.rateLost.total > 0) {
-    //     gameData.value.food.amount -= gameData.value.food.rateLost.total;
-    //     gameData.value.Resource.amount += gameData.value.Resource.rateGained.total;
-    //     gameData.value.Biomass.amount += gameData.value.Biomass.rateGained.food;
-    //   }
+  let int = 86000;
+  console.time('rejoin');
+  for (let i = 0; i < int; i++) {
+    setTimeout(() => {
+
+    console.log(i);
+    loop();
+
+    // const progress = (i / int) * 100;
+    // progressBar.value = progress;
+    // if ( i = int - 1) {
+    //   // document.getElementById("loading-screen").style.display = "none";  
     // }
-    
+    }, 1);
+  }
+  console.timeEnd('rejoin');
+}
+
+onMounted(() => {
+  setTimeout(() => {
+    rejoin();
   }, 1000);
+  // const savedData = localStorage.getItem('gameData');
+  // if (savedData) {
+  //   console.log('Loading game data');
+  //   const parsedData = JSON.parse(savedData);
+  //   for (const key in parsedData) {
+  //     if (gameData.value.hasOwnProperty(key)) {
+  //       gameData.value[key] = parsedData[key];
+  //     }
+  //   }
+  // }
+  // // setInterval(() => {
+  // //   loop();    
+  // // }, 1000);
+
+  // watch(() => gameData.value, () => {
+  //   console.log('Saving game data');
+  //   save();
+  // }, { deep: true });
+
 });
 setupTweenedData(gameData.value, tweened);
 setupFormatNumber();
 
+onBeforeUnmount(() => {
+  // Clean up the watcher when the component is unmounted
+  // gameData.$stop();
+});
 </script>
 
 <style scoped>
