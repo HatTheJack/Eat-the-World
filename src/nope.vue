@@ -1,9 +1,15 @@
 <template>
-      <main>
+  <div id="loading-screen">
+  <p>Loading...</p>
+  <progress id="loading-progress-bar" value="0" max="100"></progress>
+</div>
+
+  <div id="all">
+    <main>
       <li>
           <span>Biomass</span>
           <span>
-            <span>{{ gameData.items.biomass.formattedAmount }}</span>
+            <span>{{ gameData.items.biomass.amount }}</span>
             {{ gameData.items.biomass.rateGained.total - gameData.items.biomass.rateLost.total}}
           </span>
       </li>
@@ -28,19 +34,22 @@
       </ul>
     </main>
     
-    {{ tweened }}
+    <!-- {{ tweened }} -->
     <span v-show="gameData.expand">expand</span>
     <span v-show="gameData.eat">eat</span>
 
     <button @click="loop();">Tick</button>
     <button @click="console.clear">Clear</button>
-    <button @click="handleEating">handleEating</button>
-    <button @click="getMaxDelta">getMaxDelta</button>
+    <button @click="handleEating()">handleEating</button>
+    <button @click="getMaxTicks()">getMaxDelta</button>
     <button @click="togglePause()">{{ gameData.isPaused ? "Resume" : "Pause" }}</button>
-    </template>
+    <button @click="save()">Save</button>"
+    {{ gameData.accumulatedDeltaTime }}
+  </div>
+</template>
 
 <script setup>  
-import { ref, onMounted, watch, computed} from 'vue';
+import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue';
 import { formatNumber } from '@/assets/js/functions.js';
 
 const gameData = ref({
@@ -48,8 +57,8 @@ const gameData = ref({
   eat: false,
   items: {
     food: {
-        amount: 10,
-        max: 100,
+        amount: 1000,
+        max: 1000,
         rateLost: {
             total: 0,
         },
@@ -66,7 +75,7 @@ const gameData = ref({
         },
     },
     biomass: {
-        amount: 0,
+        amount: 1000,
         rateLost: {
             total: 10,
             expansion: {
@@ -88,7 +97,7 @@ const gameData = ref({
     },
   },
   timestamp: 0,
-  accumulatedDeltaTime: 15,
+  accumulatedDeltaTime: 3600,
   isPaused: false,
   upgrades: {
     autoEatFood: {
@@ -98,6 +107,20 @@ const gameData = ref({
     },
   },
 });
+
+// Watch for changes and save to local storage
+
+
+
+
+function save() {
+  localStorage.setItem('gameData', JSON.stringify(gameData.value));
+}
+// Load the data from local storage on component creation
+const savedData = localStorage.getItem('gameData');
+if (savedData) {
+  Object.assign(gameData, JSON.parse(savedData));
+}
 
 function togglePause() {
   gameData.value.isPaused = !gameData.value.isPaused;
@@ -319,7 +342,7 @@ function handleChange() {
 }
 
 // check biomass and all food and get maximum delta possible
-function getMaxDelta() {  
+function getMaxTicks() {  
   let deltaTime = gameData.value.accumulatedDeltaTime;
   let deltas = [];
 
@@ -352,17 +375,17 @@ function loop() {
   let currentTimestamp = performance.now();
   let deltaTime = (currentTimestamp - gameData.value.timestamp) / 1000;
   gameData.value.timestamp = performance.now();
+  // gameData.value.accumulatedDeltaTime += deltaTime;  
 
-  if (deltaTime >= 2) {
-  gameData.value.accumulatedDeltaTime += (currentTimestamp - gameData.value.timestamp) / 1000;  
-  }
-  let maxdeltaTime = getMaxDelta();
-  maxdeltaTime = Math.min(deltaTime, gameData.value.accumulatedDeltaTime);
-  gameData.value.accumulatedDeltaTime -= maxdeltaTime;
+  // let maxdeltaTime = getMaxTicks();
+  // console.log("maxDelta: ",maxdeltaTime);
+  // maxdeltaTime = Math.min(maxdeltaTime, gameData.value.accumulatedDeltaTime);
+  // console.log(maxdeltaTime);
+  // gameData.value.accumulatedDeltaTime -= maxdeltaTime;
   // console.log(deltaTime);
 
   // // make changes based on gamedata gained and lost
-  handleUpdating(deltaTime);
+  handleUpdating(1);
 
   // // update gameobject array with new calculated changes
   // // dont need to update births
@@ -373,35 +396,64 @@ function loop() {
   
 }
 
-onMounted(() => {
-  setInterval(() => {
+function rejoin() {
+  document.getElementById("loading-screen").style.display = "block";
+  let currentTimestamp = performance.now();
+  let deltaTime = (currentTimestamp - gameData.value.timestamp) / 1000;
+  gameData.value.timestamp = performance.now();
+  console.log(deltaTime);
+
+  const progressBar = document.getElementById("loading-progress-bar");
+
+  let int = 86000;
+  console.time('rejoin');
+  for (let i = 0; i < int; i++) {
+    setTimeout(() => {
+
+    console.log(i);
     loop();
 
-    // gameData.value.food.amount += gameData.value.food.rateGained.births;
-
-    // if (gameData.value.Biomass.amount >= gameData.value.Biomass.rateLost) {
-    //   gameData.value.Biomass.expand = true;
-    //   setTimeout(() => {
-    //     gameData.value.Biomass.expand = false;
-    //   }, 1000);
-    //   // expend biomass
-    //   gameData.value.Biomass.amount -= gameData.value.Biomass.rateLost;
-    //   // expand to include more food and more max food
-    //   gameData.value.food.amount += Math.min(gameData.value.food.rateGained.expansion, gameData.value.food.max);
-    //   gameData.value.food.max += 1;
-    //   // consume food based on upgrade
-    //   if (gameData.value.food.amount >= gameData.value.food.rateLost.total && gameData.value.food.rateLost.total > 0) {
-    //     gameData.value.food.amount -= gameData.value.food.rateLost.total;
-    //     gameData.value.Resource.amount += gameData.value.Resource.rateGained.total;
-    //     gameData.value.Biomass.amount += gameData.value.Biomass.rateGained.food;
-    //   }
+    // const progress = (i / int) * 100;
+    // progressBar.value = progress;
+    // if ( i = int - 1) {
+    //   // document.getElementById("loading-screen").style.display = "none";  
     // }
-    
+    }, 1);
+  }
+  console.timeEnd('rejoin');
+}
+
+onMounted(() => {
+  setTimeout(() => {
+    rejoin();
   }, 1000);
+  // const savedData = localStorage.getItem('gameData');
+  // if (savedData) {
+  //   console.log('Loading game data');
+  //   const parsedData = JSON.parse(savedData);
+  //   for (const key in parsedData) {
+  //     if (gameData.value.hasOwnProperty(key)) {
+  //       gameData.value[key] = parsedData[key];
+  //     }
+  //   }
+  // }
+  // // setInterval(() => {
+  // //   loop();    
+  // // }, 1000);
+
+  // watch(() => gameData.value, () => {
+  //   console.log('Saving game data');
+  //   save();
+  // }, { deep: true });
+
 });
 setupTweenedData(gameData.value, tweened);
 setupFormatNumber();
 
+onBeforeUnmount(() => {
+  // Clean up the watcher when the component is unmounted
+  // gameData.$stop();
+});
 </script>
 
 <style scoped>
