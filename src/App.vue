@@ -20,7 +20,8 @@ import mainMenu from '@/components/mainmenu.vue';
 import topbar from '@/components/topbar.vue';
 import hiveTotals from '@/components/totals.vue';
 import tooltip from '@/components/tooltip.vue';
-
+import * as ADNotations from "@antimatter-dimensions/notations";
+import Decimal from "break_infinity.js";
 
 
 let mainGameLoop;
@@ -33,13 +34,26 @@ onMounted(() => {
   hiveManager.expandHive(0, 150000)
   console.log(formatNumber(gameData.value.hive[0].radius)/100000);
   gameData.value.hive.find(item => item.id === 0).active = true;
-  mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
+  mainGameLoop = setInterval(mainLoop, loopInterval); 
+  
+  const scientific = new ADNotations.ScientificNotation();// Execute mainLoop every 1000 milliseconds (1 second)
+  let x = new Decimal("1.5e53");
+  let y = new Decimal("1e8000000000000000");
+  let z = y.divide(x);
+  let formated = scientific.format(y, 2, 2);
+  console.log(formated);
+  // formated = scientific.format(y, 2, 2);
+  // console.log("mass of multiverse",formated,"kg");
+  // formated = scientific.format(z, 2, 2);
+  // console.log("total universes: ", formated);
+  
 });
 
 
 </script>
 
 <template>
+  <div> </div>
   <main class="flexContainerVertical">
     <topbar />
     <div class="flexContainerHorizontal flexChild95">      
@@ -58,9 +72,6 @@ onMounted(() => {
 <style scoped>
 @import "@/assets/css/themes.css";
 
-  main {
-   
-  }
   main::before {
     opacity: 0.1;
     content: "";

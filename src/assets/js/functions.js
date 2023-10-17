@@ -77,7 +77,7 @@ export function formatNumber(number, unit) {
       number /= 100000;
       unit = "kg";
     } else if (number >= 100) {
-
+      
       number /= 100;
       unit = "g";
     }    
@@ -93,7 +93,9 @@ export function formatNumber(number, unit) {
     }
   }
 
-  return unit ? scientific.format(number, 2, 2) + " " +  unit : scientific.format(number, 2, 2);
+  const container = document.createElement("div");
+  container.innerHTML = unit ? scientific.format(number, 2, 2) + `<span class="unit" style="display: inline-block; width: 20px; margin-left: 10px;">` +  unit + "</span>" : scientific.format(number, 2, 2);
+  return container.innerHTML;
 }
 
 export function calculateDeltaTime() {
