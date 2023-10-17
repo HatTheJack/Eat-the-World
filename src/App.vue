@@ -11,7 +11,7 @@ import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount, watc
 import { COMMON_NAMES } from '@/assets/js/definitions';
 import { gameData } from '@/assets/js/gameData.js'
 import { foodValues } from "@/assets/js/resources.js";
-import { mainLoop, calculateArea, formatNumber, calculateHeartPosition, hiveManager, heartBeat, tickHour, addHive, unlockResearch } from '@/assets/js/functions.js';
+import { mainLoop, calculateArea, formatNumber, hiveManager } from '@/assets/js/functions.js';
 import { researchInfo } from '@/assets/js/research.js';
 import ChildComponent from './components/popups.vue';
 import devArea from '@/components/dev.vue';
@@ -22,22 +22,16 @@ import hiveTotals from '@/components/totals.vue';
 import tooltip from '@/components/tooltip.vue';
 
 
-//init some variables
-// Define a variable to store the interval ID
+
 let mainGameLoop;
-const loopInterval = 100;
+const loopInterval = 1000;
 
-
-// main loop function
-
-
-
-// Use the onMounted hook to measure the element's width after it's mounted
-// Use the onMounted hook to start the loop when the component is mounted
 onMounted(() => {
   // if (heartbeatElement.value) {
   //   heartbeatWidth.value = heartbeatElement.value.offsetWidth;
   // }
+  hiveManager.expandHive(0, 150000)
+  console.log(formatNumber(gameData.value.hive[0].radius)/100000);
   gameData.value.hive.find(item => item.id === 0).active = true;
   mainGameLoop = setInterval(mainLoop, loopInterval); // Execute mainLoop every 1000 milliseconds (1 second)
 });
@@ -81,13 +75,7 @@ onMounted(() => {
     filter: blur(5px);
   }
   
-  .purchaseButton button {
-    background-color: var(--theme-primary);
-    padding: 10px;
-  }
-  .purchaseButton button:hover {
-    background-color: var(--theme-secondary);
-  }
+
   #hiveTotals ul li {
     display: inline-block;
     margin: 0 10px;

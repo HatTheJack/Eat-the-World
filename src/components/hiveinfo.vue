@@ -7,14 +7,15 @@
       <h4>{{ hive.biome }}</h4>
       <ul>
       <li><span>Radius:</span> <span>{{ formatNumber(hive.radius, "cm") }}</span></li>
-      <li><span> {{ COMMON_NAMES.RESOURCES.BIOMASS.NAME }}:</span><span> {{ formatNumber(hive[COMMON_NAMES.RESOURCES.NAME][COMMON_NAMES.RESOURCES.BIOMASS.NAME].amount, 'mg') }}</span> </li>
+      <li><span> {{ COMMON_NAMES.BIOMASS }}:</span><span> {{ formatNumber(hive[COMMON_NAMES.RESOURCES][COMMON_NAMES.BIOMASS].amount, 'mg') }}</span> </li>
       </ul>
+      {{ formatNumber(hive.area, 'cm2') }} / {{ formatNumber(hive.maxArea, 'cm2') }}
       <bar :barNumbers="[hive.area, hive.areaUsed]" :max="hive.maxArea"/>
       <h4>Resources</h4>
       <!-- <div v-show="hive.active" class="hiveResources"> -->
       <div class="hiveResources">
         <ul>
-          <template v-for="(resource, key) in hive[COMMON_NAMES.RESOURCES.NAME]">
+          <template v-for="(resource, key) in hive[COMMON_NAMES.RESOURCES]">
             <li v-if="resource.show == true && key !== 'Biomass'">
                 <span>{{ key }}:</span> {{ formatNumber(resource.amount, 'mg') }}
             </li>
@@ -171,12 +172,13 @@
     opacity: 1;
   }
   #hives {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    width: 100%;
-    padding: 10px 0;
-  }
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 10px;
+  width: 100%;
+  padding: 10px 0;
+  max-width: 600px; /* Adjust this max-width as needed */
+}
 
 </style>
 

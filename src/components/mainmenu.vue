@@ -12,26 +12,10 @@
             <div v-show="tabMapping.mutations">
                 <h3>Mutations are here</h3>
             </div>
-            <div v-show="tabMapping.research">
-                <div v-for="(research, key) in researchInfo.tierBiome">
-                    <tooltip class="purchaseButton" v-if="gameData.research.tierBiome[key].available && !gameData.research.tierBiome[key].unlocked">
-                        <button @click="unlockResearch(key)">{{ key }}</button>
-                        <template #tooltip>
-                            <h3>{{ key }}</h3>
-                            <span>{{ research.description }}</span>
-                            <ul>
-                            <li v-for="(cost, key) in research.cost.genes">{{ key }}: {{ cost }}</li>
-                            </ul>
-                            <ul>
-                            <li v-for="(cost, key) in research.cost.resources">{{ key }}: {{ cost }}</li>
-                            </ul>
-                        </template>
-                    </tooltip>
-                </div>
-            </div>
+            <research v-if="tabMapping.research"/>
             <div v-show="tabMapping.grow">
             <h3>Growing is here</h3>
-            <button @click="addHive('Desert')" id="addHive">add hive</button>
+            <button @click="hiveManager.addHive('Desert')" id="addHive">add hive</button>
             </div>
         </div>
 </template>
@@ -40,8 +24,9 @@
 import { ref } from 'vue';
 import { gameData, tabMapping } from '@/assets/js/gameData.js';
 import { researchInfo } from '@/assets/js/research.js';
-import { addHive } from '@/assets/js/functions.js';
+import { hiveManager } from '@/assets/js/functions.js';
 import tooltip from '@/components/tooltip.vue';
+import research from '@/components/research.vue'
 
 function tabs(content) {
   // Set all properties to false
@@ -57,9 +42,12 @@ function tabs(content) {
 </script>
 
 <style scoped>
+
 @import url('@/assets/css/themes.css');
+
   #tabContent {
     margin-top: 35px;
+    padding: 10px;
     border-top: 3px solid var(--theme-accent);
   }
   #appTabs {

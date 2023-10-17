@@ -1,3 +1,5 @@
+import { COMMON_NAMES } from "@/assets/js/definitions.js";
+
 export const growthsInfo = {
     tierBiome: {
         venusFlyTrap:
@@ -15,8 +17,8 @@ export const growthsInfo = {
             costMultiplyer: 2,
             cost: {
                 },
-                resources: {
-                    Biomass: 100,
+                [COMMON_NAMES.RESOURCES]: {
+                    [COMMON_NAMES.BIOMASS]: 100,
                     Glucose: 1000,
                     Fibre: 1000,
                 },

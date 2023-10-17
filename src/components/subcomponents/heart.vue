@@ -10,7 +10,7 @@
 
 <script setup>
 import { gameData } from '@/assets/js/gameData.js';
-import { calculateHeartPosition } from '@/assets/js/functions.js';
+// import { calculateHeartPosition } from '@/assets/js/functions.js';
 
 </script>
   

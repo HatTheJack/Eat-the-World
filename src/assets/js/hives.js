@@ -10,116 +10,120 @@ export const initHiveForest = ([
     areaUsed: 0,
     area: 314.16,
     previousArea: 0,
-    maxArea: 100000000,
+    maxArea: 10000000000000,
     heart: 
       { 
         healthMultiplyer: 1,
         dyingState: true,
       }, 
-    [COMMON_NAMES.RESOURCES.NAME]: {
-      [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: {
-        amount: 10000000,
+    [COMMON_NAMES.RESOURCES]: {
+      [COMMON_NAMES.BIOMASS]: {
+        amount: 10000000000,
+        show: true,
+        lost: {
+          total: 10,
+          expansion: 10,
+        }
+      },
+      [COMMON_NAMES.FIBRE]: {
+        amount: 0,
         show: true,
       },
-      [COMMON_NAMES.RESOURCES.FIBRE.NAME]: {
+      [COMMON_NAMES.GLUCOSE]: {
         amount: 0,
         show: true,
       },
-      [COMMON_NAMES.RESOURCES.GLUCOSE.NAME]: {
-        amount: 0,
-        show: true,
-      },
-      [COMMON_NAMES.RESOURCES.CHITIN.NAME]: {
+      [COMMON_NAMES.CHITIN]: {
         amount: 0,
         show: false,
       },
-      [COMMON_NAMES.RESOURCES.PROTEIN.NAME]: {
+      [COMMON_NAMES.PROTEIN]: {
         amount: 0,
         show: false,
       },
-      [COMMON_NAMES.RESOURCES.FAT.NAME]: {
+      [COMMON_NAMES.FAT]: {
         amount: 0,
         show: false,
       },
-      [COMMON_NAMES.RESOURCES.BONES.NAME]: {
+      [COMMON_NAMES.BONES]: {
         amount: 0,
         show: false,
       },
-      [COMMON_NAMES.RESOURCES.BRAINS.NAME]: {
+      [COMMON_NAMES.BRAINS]: {
         amount: 0,
         show: false,
       },
-      [COMMON_NAMES.RESOURCES.LIGIN.NAME]: {
+      [COMMON_NAMES.LIGIN]: {
         amount: 0,
         show: false,
       },
-      [COMMON_NAMES.RESOURCES.CELLULOSE.NAME]: {
+      [COMMON_NAMES.CELLULOSE]: {
         amount: 0,
         show: false,
       },
-      [COMMON_NAMES.RESOURCES.PNEUMATISED_BONES.NAME]: {
+      [COMMON_NAMES.PNEUMATISED_BONES]: {
         amount: 0,
         show: false,
       },
     },
-    [COMMON_NAMES.FOOD.NAME]: {
-      [COMMON_NAMES.FOOD.FLORA.NAME]: {
+    [COMMON_NAMES.FOOD]: {
+      [COMMON_NAMES.FLORA]: {
         show: true,
-        [COMMON_NAMES.FOOD.FLORA.HERBACEOUS.NAME]: {
+        [COMMON_NAMES.HERBACEOUS]: {
           show: true,
           amount: 314, 
           perloop: 0,
           max: 0,
         },
-        [COMMON_NAMES.FOOD.FLORA.ARBOREAL.NAME]: {
+        [COMMON_NAMES.ARBOREAL]: {
           show: false,
           amount: 0,
           perloop: 0,
           max: 0,
         },
       },
-      [COMMON_NAMES.FOOD.FAUNA.NAME]: {
+      [COMMON_NAMES.FAUNA]: {
         show: false,
-        [COMMON_NAMES.FOOD.FAUNA.ARTHROPODS.NAME]: {
+        [COMMON_NAMES.ARTHROPODS]: {
           show: false,
           amount: 0, 
           perloop: 0,
           max: 0,
         },
-        [COMMON_NAMES.FOOD.FAUNA.MAMMALIA.NAME]: {
+        [COMMON_NAMES.MAMMALIA]: {
           show: false,
           amount: 0, 
           perloop: 0,
           max : 0,
         },
-        [COMMON_NAMES.FOOD.FAUNA.REPTILIA.NAME]: {
+        [COMMON_NAMES.REPTILIA]: {
           show: false,
           amount: 0, 
           perloop: 0,
           max: 0,
         },
-        [COMMON_NAMES.FOOD.FAUNA.AVES.NAME]: {
+        [COMMON_NAMES.AVES]: {
           show: false,
           amount: 0, 
           perloop: 0,
           max: 0,
         },
-        [COMMON_NAMES.FOOD.FAUNA.AQUATIC.NAME]: {
+        [COMMON_NAMES.AQUATIC]: {
           show: false,
           amount: 0, 
           perloop: 0,
           max: 0,
         },
     },
-      [COMMON_NAMES.FOOD.MISC.NAME]: {
+      [COMMON_NAMES.MISC]: {
         show: false,
-        [COMMON_NAMES.FOOD.MISC.FUNGI.NAME]: {
+        [COMMON_NAMES.FUNGI]: {
           show: false,
           amount: 0, 
           perloop: 0,
           max: 0,
         },
-        [COMMON_NAMES.FOOD.MISC.SENTIENTS.NAME]: {
+        [COMMON_NAMES.SENTIENTS]: {
           show: false,
           amount: 0, 
           perloop: 0,

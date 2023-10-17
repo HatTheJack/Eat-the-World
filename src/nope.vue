@@ -5,7 +5,7 @@
 </div>
 
   <div id="all">
-    <main>
+    <main id="main">
       <li>
           <span>Biomass</span>
           <span>
@@ -43,7 +43,8 @@
     <button @click="handleEating()">handleEating</button>
     <button @click="getMaxTicks()">getMaxDelta</button>
     <button @click="togglePause()">{{ gameData.isPaused ? "Resume" : "Pause" }}</button>
-    <button @click="save()">Save</button>"
+    <button @click="saveLocal()">Save</button>"
+    <button @click="retrieveLocal()">Load</button>
     {{ gameData.accumulatedDeltaTime }}
   </div>
 </template>
@@ -112,15 +113,6 @@ const gameData = ref({
 
 
 
-
-function save() {
-  localStorage.setItem('gameData', JSON.stringify(gameData.value));
-}
-// Load the data from local storage on component creation
-const savedData = localStorage.getItem('gameData');
-if (savedData) {
-  Object.assign(gameData, JSON.parse(savedData));
-}
 
 function togglePause() {
   gameData.value.isPaused = !gameData.value.isPaused;
@@ -288,7 +280,6 @@ function handleEating() {
     const item = gameData.value.items.resource;
     // check if item has eating property 
     if (item.rateGained?.eating) {
-    console.log(item);
     // get amount to eat
     let amountToEat = item.rateGained.eating.total;
     // check each property in eating except total and see how many each upgrade there is for each property
@@ -304,15 +295,15 @@ function handleEating() {
     }
   }
 }
+let data = JSON.parse(JSON.stringify(gameData.value));
 function handleUpdating() {
-  for (const itemName in gameData.value.items) {
-    const item = gameData.value.items[itemName];
+  for (const itemName in data.items) {
+    const item = data.items[itemName];
 
     let gained = item.rateGained?.total ?? 0;
     let lost = item.rateLost?.total ?? 0;
     let max = item.max ?? Infinity;
-
-    item.amount = Math.min(Math.max(0, item.amount + (gained - lost)), max);
+    data.items[itemName].amount = Math.min(Math.max(0, item.amount + (gained - lost)), max);
 
     if (item.max !== undefined) {
       item.max += item.rateGained.expansion.total;
@@ -347,10 +338,32 @@ function loop() {
   if (gameData.value.isPaused) return;
   // set up deltatime
   let currentTimestamp = performance.now();
-  // let deltaTime = (currentTimestamp - gameData.value.timestamp) / 1000;
-  gameData.value.accumulatedDeltaTime += (currentTimestamp - gameData.value.timestamp) / 1000;
-  console.log(gameData.value.accumulatedDeltaTime);
-  gameData.value.timestamp = performance.now();
+  let deltaTime = (currentTimestamp - gameData.value.timestamp) / 1000;
+  // gameData.value.accumulatedDeltaTime += (currentTimestamp - gameData.value.timestamp) / 1000;
+  // console.log(gameData.value.accumulatedDeltaTime);
+  // gameData.value.timestamp = performance.now();
+  // gameData.value.accumulatedDeltaTime += deltaTime;  
+
+  // let maxdeltaTime = getMaxTicks();
+  // console.log("maxDelta: ",maxdeltaTime);
+  // maxdeltaTime = Math.min(maxdeltaTime, gameData.value.accumulatedDeltaTime);
+  // console.log(maxdeltaTime);
+  // gameData.value.accumulatedDeltaTime -= maxdeltaTime;
+  // console.log(deltaTime);
+
+  // // make changes based on gamedata gained and lost
+  handleUpdating(1);
+
+
+}
+function loopNoRef() {
+  if (gameData.value.isPaused) return;
+  // set up deltatime
+  // let currentTimestamp = performance.now();
+  // // let deltaTime = (currentTimestamp - gameData.value.timestamp) / 1000;
+  // gameData.value.accumulatedDeltaTime += (currentTimestamp - gameData.value.timestamp) / 1000;
+  // console.log(gameData.value.accumulatedDeltaTime);
+  // gameData.value.timestamp = performance.now();
   // gameData.value.accumulatedDeltaTime += deltaTime;  
 
   // let maxdeltaTime = getMaxTicks();
@@ -387,38 +400,77 @@ function loop() {
 
   // }
 }
+function readGameData() {
+  return JSON.parse(JSON.stringify(gameData.value));
+}
+
+function writeGameData() {
+  gameData.value = JSON.parse(JSON.stringify(data));
+}
+
+function saveLocal() {
+  const serializedData = JSON.stringify(gameData.value);
+  localStorage.setItem('gameData', serializedData);
+  console.log(gameData.value);
+}
+
+function retrieveLocal() {
+  const storedData = localStorage.getItem('gameData');
+  if (storedData) {
+    const parsedData = JSON.parse(storedData);
+    console.log(parsedData);
+    // You can assign parsedData back to your gameData variable if needed
+    gameData.value = parsedData;
+  }
+}
 
 function rejoin() {
   document.getElementById("loading-screen").style.display = "block";
+
   let currentTimestamp = performance.now();
   let deltaTime = (currentTimestamp - gameData.value.timestamp) / 1000;
   gameData.value.timestamp = performance.now();
   console.log(deltaTime);
+  if (deltaTime <= 1) return;
+  console.log("You've been gone for " + Math.round(deltaTime / 60 / 60) + " hours " + Math.round(deltaTime / 60) + "minutes" + Math.round(deltaTime) + "seconds" );
 
   const progressBar = document.getElementById("loading-progress-bar");
+  const app = document.getElementById("main");
+  app.style.display = "none"; 
 
-  let int = 86000;
+  let int = Math.round(deltaTime);
+  console.log(int);
+  let interval = int / 100
+
   console.time('rejoin');
   for (let i = 0; i < int; i++) {
     setTimeout(() => {
-
-    console.log(i);
-    loop();
-
+    loopNoRef();
+    
+    if (i % interval === 0) {
+      const progress = (i / int) * 100;
+      progressBar.value = progress;
+    }
     // const progress = (i / int) * 100;
     // progressBar.value = progress;
-    // if ( i = int - 1) {
-    //   // document.getElementById("loading-screen").style.display = "none";  
-    // }
+    if ( i === int - 1) {
+      document.getElementById("loading-screen").style.display = "none"; 
+      app.style.display = "block"; 
+      console.log(JSON.stringify(data));
+    }
     }, 1);
   }
-  console.timeEnd('rejoin');
+  console.timeEnd('rejoin');  
+  
 }
 
 onMounted(() => {
-  setTimeout(() => {
+  setTimeout(() => {}, 1000);
+  retrieveLocal();
     rejoin();
-  }, 1000);
+    // loop();
+    
+  
   // const savedData = localStorage.getItem('gameData');
   // if (savedData) {
   //   console.log('Loading game data');
@@ -433,10 +485,10 @@ onMounted(() => {
   // //   loop();    
   // // }, 1000);
 
-  // watch(() => gameData.value, () => {
-  //   console.log('Saving game data');
-  //   save();
-  // }, { deep: true });
+  watch(() => gameData.value, () => {
+    console.log('Saving game data');
+    saveLocal();
+  }, { deep: true });
 
 });
 setupTweenedData(gameData.value, tweened);
@@ -449,6 +501,15 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+#all {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+button {
+  padding: 10px;
+  margin: 10px;
+}
 main {
   width: 300px;
 }

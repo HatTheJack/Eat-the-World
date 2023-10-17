@@ -39,12 +39,12 @@ export const researchInfo = {
             "Forest",
             1,
             [
-                [COMMON_NAMES.FOOD.FLORA.HERBACEOUS.GENE, 1000   ],
+                [COMMON_NAMES.HERBACEOUS_GENE, 1000],
             ],
             [
-                [COMMON_NAMES.RESOURCES.BIOMASS.NAME, 100],
-                [COMMON_NAMES.RESOURCES.GLUCOSE.NAME, 1000],
-                [COMMON_NAMES.RESOURCES.FIBRE.NAME, 1000],
+                [COMMON_NAMES.BIOMASS, 100],
+                [COMMON_NAMES.GLUCOSE, 1000],
+                [COMMON_NAMES.FIBRE, 1000],
             ]
         ),
         leafCutterAnt: new Research(
@@ -56,12 +56,12 @@ export const researchInfo = {
             "Forest",
             1,
             [
-                [COMMON_NAMES.FOOD.FAUNA.ARTHROPODS.GENE, 1000],
+                [COMMON_NAMES.ARTHROPODS_GENE, 1000],
             ],
             [
-                [COMMON_NAMES.RESOURCES.BIOMASS.NAME, 100],
-                [COMMON_NAMES.RESOURCES.GLUCOSE.NAME, 100],
-                [COMMON_NAMES.RESOURCES.FIBRE.NAME, 100],
+                [COMMON_NAMES.BIOMASS, 100],
+                [COMMON_NAMES.GLUCOSE, 100],
+                [COMMON_NAMES.FIBRE, 100],
             ]
         ),
     }

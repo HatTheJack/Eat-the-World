@@ -12,6 +12,7 @@
                     <button @click="gameData.hive[0].radiusPerBeat += 1000">Increase radius per beat 1000</button>
                     <button @click="gameData.hive[0].radiusPerBeat += 10000">Increase radius per beat 10000</button>
                     <button @click="gameData.hive[0].radiusPerBeat += 1000000000">Increase radius per beat 1000000000</button>
+                    <button @click="getMaxExpandPerTick(0)">Get Max Expand</button>"
                 </div>
                 <pre>{{ gameData }}</pre>
             </div>
@@ -25,7 +26,7 @@
 <script setup>
   import { ref } from 'vue';
   import { gameData } from '@/assets/js/gameData.js';
-  import { mainLoop } from '@/assets/js/functions.js';
+  import { mainLoop, getMaxExpandPerTick } from '@/assets/js/functions.js';
 
   const showDev = ref(false);
 </script>

@@ -2,9 +2,9 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 
 // export const foodValues = {
 //   Overall: 0.000001,
-//   [COMMON_NAMES.FOOD.NAME]: {
-//     [COMMON_NAMES.FOOD.FLORA.NAME]: {
-//       [COMMON_NAMES.FOOD.FLORA.HERBACEOUS.NAME]: {
+//   [COMMON_NAMES.FOOD]: {
+//     [COMMON_NAMES.FLORA]: {
+//       [COMMON_NAMES.HERBACEOUS]: {
 //         amountToEat: 100,
 //         multiplyer: 10000,
 //         resources: {
@@ -16,7 +16,7 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 //           HerbaceousGene: 1,
 //         }
 //       },
-//       [COMMON_NAMES.FOOD.FLORA.ARBOREAL.NAME]: {
+//       [COMMON_NAMES.ARBOREAL]: {
 //         amountToEat: 100,
 //         multiplyer: 1,
 //         resources: {
@@ -29,8 +29,8 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 //         }
 //       },
 //     },
-//     [COMMON_NAMES.FOOD.FAUNA.NAME]: {
-//       [COMMON_NAMES.FOOD.FAUNA.ARTHROPODS.NAME]: {
+//     [COMMON_NAMES.FAUNA]: {
+//       [COMMON_NAMES.ARTHROPODS]: {
 //         amountToEat: 100,
 //         multiplyer: 200,
 //         resources: {
@@ -42,7 +42,7 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 //           ArthropodsGene: 1,
 //         }
 //       },
-//       [COMMON_NAMES.FOOD.FAUNA.MAMMALIA.NAME]: {
+//       [COMMON_NAMES.MAMMALIA]: {
 //         amountToEat: 1,
 //         multiplyer: 20,
 //         resources: {
@@ -55,7 +55,7 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 //           MammaliaGene: 1,
 //         }
 //       },
-//       [COMMON_NAMES.FOOD.FAUNA.REPTILIA.NAME]: {
+//       [COMMON_NAMES.REPTILIA]: {
 //         amountToEat: 1,
 //         multiplyer: 20,
 //         resources: {
@@ -68,7 +68,7 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 //           ReptiliaGene: 1,
 //         }
 //       },
-//       [COMMON_NAMES.FOOD.FAUNA.AVES.NAME]: {
+//       [COMMON_NAMES.AVES]: {
 //         amountToEat: 1,
 //         multiplyer: 10,
 //         resources: {
@@ -81,7 +81,7 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 //           AvianGene: 1,
 //         }
 //       },
-//       [COMMON_NAMES.FOOD.FAUNA.AQUATIC.NAME]: {
+//       [COMMON_NAMES.AQUATIC]: {
 //         amountToEat: 1,
 //         multiplyer: 50,
 //         resources: {
@@ -95,8 +95,8 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 //         }
 //       },
 //     },
-//     [COMMON_NAMES.FOOD.MISC.NAME]: {
-//       [COMMON_NAMES.FOOD.MISC.FUNGI.NAME]: {
+//     [COMMON_NAMES.MISC]: {
+//       [COMMON_NAMES.FUNGI]: {
 //         amountToEat: 1,
 //         multiplyer: 10,
 //         resources: {
@@ -108,7 +108,7 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 //           FungiGene: 1,
 //         }
 //       },
-//       [COMMON_NAMES.FOOD.MISC.SENTIENTS.NAME]: {
+//       [COMMON_NAMES.SENTIENTS]: {
 //         amountToEat: 1,
 //         multiplyer: 1,
 //         resources: {
@@ -128,124 +128,124 @@ import { COMMON_NAMES } from "@/assets/js/definitions.js";
 
 export const foodValues = {
   Overall: 0.000001,
-  [COMMON_NAMES.FOOD.NAME]: {
-    [COMMON_NAMES.FOOD.FLORA.NAME]: {
-      [COMMON_NAMES.FOOD.FLORA.HERBACEOUS.NAME]: {
+  [COMMON_NAMES.FOOD]: {
+    [COMMON_NAMES.FLORA]: {
+      [COMMON_NAMES.HERBACEOUS]: {
         amountToEat: 100,
         multiplyer: 10000,
-        [COMMON_NAMES.RESOURCES.NAME]: {
-          [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: 1,
-          [COMMON_NAMES.RESOURCES.FIBRE.NAME]: 1,
-          [COMMON_NAMES.RESOURCES.GLUCOSE.NAME]: 1,
+        [COMMON_NAMES.RESOURCES]: {
+          [COMMON_NAMES.BIOMASS]: 1,
+          [COMMON_NAMES.FIBRE]: 1,
+          [COMMON_NAMES.GLUCOSE]: 1,
         },
-        [COMMON_NAMES.GENES.NAME]: {
-          [COMMON_NAMES.FOOD.FLORA.HERBACEOUS.GENE]: 1,
+        [COMMON_NAMES.GENES]: {
+          [COMMON_NAMES.HERBACEOUS_GENE]: 1,
         }
       },
-      [COMMON_NAMES.FOOD.FLORA.ARBOREAL.NAME]: {
+      [COMMON_NAMES.ARBOREAL]: {
         amountToEat: 100,
         multiplyer: 1,
-        [COMMON_NAMES.RESOURCES.NAME]: {
-          [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: 1,
-          [COMMON_NAMES.RESOURCES.FIBRE.NAME]: 1,
-          [COMMON_NAMES.RESOURCES.GLUCOSE.NAME]: 1,
+        [COMMON_NAMES.RESOURCES]: {
+          [COMMON_NAMES.BIOMASS]: 1,
+          [COMMON_NAMES.FIBRE]: 1,
+          [COMMON_NAMES.GLUCOSE]: 1,
         },
-        [COMMON_NAMES.GENES.NAME]: {
-          [COMMON_NAMES.FOOD.FLORA.ARBOREAL.GENE]: 1,
+        [COMMON_NAMES.GENES]: {
+          [COMMON_NAMES.ARBOREAL_GENE]: 1,
         }
       },
     },
-    [COMMON_NAMES.FOOD.FAUNA.NAME]: {
-      [COMMON_NAMES.FOOD.FAUNA.ARTHROPODS.NAME]: {
+    [COMMON_NAMES.FAUNA]: {
+      [COMMON_NAMES.ARTHROPODS]: {
         amountToEat: 100,
         multiplyer: 200,
-        [COMMON_NAMES.RESOURCES.NAME]: {
-          [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: 10,
-          [COMMON_NAMES.RESOURCES.CHITIN.NAME]: 10,
-          [COMMON_NAMES.RESOURCES.PROTEIN.NAME]: 10,
+        [COMMON_NAMES.RESOURCES]: {
+          [COMMON_NAMES.BIOMASS]: 10,
+          [COMMON_NAMES.CHITIN]: 10,
+          [COMMON_NAMES.PROTEIN]: 10,
         },
-        [COMMON_NAMES.GENES.NAME]: {
-          [COMMON_NAMES.FOOD.FAUNA.ARTHROPODS.GENE]: 1,
+        [COMMON_NAMES.GENES]: {
+          [COMMON_NAMES.ARTHROPODS_GENE]: 1,
         }
       },
-      [COMMON_NAMES.FOOD.FAUNA.MAMMALIA.NAME]: {
+      [COMMON_NAMES.MAMMALIA]: {
         amountToEat: 1,
         multiplyer: 20,
-        [COMMON_NAMES.RESOURCES.NAME]: {
-          [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: 100,
-          [COMMON_NAMES.RESOURCES.PROTEIN.NAME]: 100,
-          [COMMON_NAMES.RESOURCES.FAT.NAME]: 100,
-          [COMMON_NAMES.RESOURCES.BONES.NAME]: 100,
+        [COMMON_NAMES.RESOURCES]: {
+          [COMMON_NAMES.BIOMASS]: 100,
+          [COMMON_NAMES.PROTEIN]: 100,
+          [COMMON_NAMES.FAT]: 100,
+          [COMMON_NAMES.BONES]: 100,
         },
-        [COMMON_NAMES.GENES.NAME]: {
-          [COMMON_NAMES.FOOD.FAUNA.MAMMALIA.GENE]: 1
+        [COMMON_NAMES.GENES]: {
+          [COMMON_NAMES.MAMMALIA_GENE]: 1
         }
       },
-      [COMMON_NAMES.FOOD.FAUNA.REPTILIA.NAME]: {
+      [COMMON_NAMES.REPTILIA]: {
         amountToEat: 1,
         multiplyer: 20,
-        [COMMON_NAMES.RESOURCES.NAME]: {
-          [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: 100,
-          [COMMON_NAMES.RESOURCES.PROTEIN.NAME]: 100,
-          [COMMON_NAMES.RESOURCES.FAT.NAME]: 100,
-          [COMMON_NAMES.RESOURCES.BONES.NAME]: 100,
+        [COMMON_NAMES.RESOURCES]: {
+          [COMMON_NAMES.BIOMASS]: 100,
+          [COMMON_NAMES.PROTEIN]: 100,
+          [COMMON_NAMES.FAT]: 100,
+          [COMMON_NAMES.BONES]: 100,
         },
-        [COMMON_NAMES.GENES.NAME]: {
-          [COMMON_NAMES.FOOD.FAUNA.REPTILIA.GENE]: 1,
+        [COMMON_NAMES.GENES]: {
+          [COMMON_NAMES.REPTILIA_GENE]: 1,
         }
       },
-      [COMMON_NAMES.FOOD.FAUNA.AVES.NAME]: {
+      [COMMON_NAMES.AVES]: {
         amountToEat: 1,
         multiplyer: 10,
-        [COMMON_NAMES.RESOURCES.NAME]: {
-          [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: 150,
-          [COMMON_NAMES.RESOURCES.PROTEIN.NAME]: 150,
-          [COMMON_NAMES.RESOURCES.FAT.NAME]: 150,
-          [COMMON_NAMES.RESOURCES.PNEUMATISED_BONES.NAME]: 150,
+        [COMMON_NAMES.RESOURCES]: {
+          [COMMON_NAMES.BIOMASS]: 150,
+          [COMMON_NAMES.PROTEIN]: 150,
+          [COMMON_NAMES.FAT]: 150,
+          [COMMON_NAMES.PNEUMATISED_BONES]: 150,
         },
-        [COMMON_NAMES.GENES.NAME]: {
-          [COMMON_NAMES.FOOD.FAUNA.AVES.GENE]: 1,
+        [COMMON_NAMES.GENES]: {
+          [COMMON_NAMES.AVES_GENE]: 1,
         }
       },
-      [COMMON_NAMES.FOOD.FAUNA.AQUATIC.NAME]: {
+      [COMMON_NAMES.AQUATIC]: {
         amountToEat: 1,
         multiplyer: 50,
-        [COMMON_NAMES.RESOURCES.NAME]: {
-          [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: 50000,
-          [COMMON_NAMES.RESOURCES.PROTEIN.NAME]: 50000,
-          [COMMON_NAMES.RESOURCES.FAT.NAME]: 50000,
-          [COMMON_NAMES.RESOURCES.BONES.NAME]: 50000,
+        [COMMON_NAMES.RESOURCES]: {
+          [COMMON_NAMES.BIOMASS]: 50000,
+          [COMMON_NAMES.PROTEIN]: 50000,
+          [COMMON_NAMES.FAT]: 50000,
+          [COMMON_NAMES.BONES]: 50000,
         },
-        [COMMON_NAMES.GENES.NAME]: {
-          [COMMON_NAMES.FOOD.FAUNA.AQUATIC.GENE]: 1,
+        [COMMON_NAMES.GENES]: {
+          [COMMON_NAMES.AQUATIC_GENE]: 1,
         }
       },
     },
-    [COMMON_NAMES.FOOD.MISC.NAME]: {
-      [COMMON_NAMES.FOOD.MISC.FUNGI.NAME]: {
+    [COMMON_NAMES.MISC]: {
+      [COMMON_NAMES.FUNGI]: {
         amountToEat: 1,
         multiplyer: 10,
-        [COMMON_NAMES.RESOURCES.NAME]: {
-          [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: 1,
-          [COMMON_NAMES.RESOURCES.LIGIN.NAME]: 1,
-          [COMMON_NAMES.RESOURCES.CELLULOSE.NAME]: 1,
+        [COMMON_NAMES.RESOURCES]: {
+          [COMMON_NAMES.BIOMASS]: 1,
+          [COMMON_NAMES.LIGIN]: 1,
+          [COMMON_NAMES.CELLULOSE]: 1,
         },
-        [COMMON_NAMES.GENES.NAME]: {
-          [COMMON_NAMES.FOOD.MISC.FUNGI.GENE]: 1,
+        [COMMON_NAMES.GENES]: {
+          [COMMON_NAMES.FUNGI_GENE]: 1,
         }
       },
-      [COMMON_NAMES.FOOD.MISC.SENTIENTS.NAME]: {
+      [COMMON_NAMES.SENTIENTS]: {
         amountToEat: 1,
         multiplyer: 1,
-        [COMMON_NAMES.RESOURCES.NAME]: {
-          [COMMON_NAMES.RESOURCES.BIOMASS.NAME]: 5.477e+7,
-          [COMMON_NAMES.RESOURCES.PROTEIN.NAME]: 7e+1,
-          [COMMON_NAMES.RESOURCES.FAT.NAME]: 1.4e+7,
-          [COMMON_NAMES.RESOURCES.BONES.NAME]: 9.8e+6,
-          [COMMON_NAMES.RESOURCES.BRAINS.NAME]: 1.3e+6,
+        [COMMON_NAMES.RESOURCES]: {
+          [COMMON_NAMES.BIOMASS]: 5.477e+7,
+          [COMMON_NAMES.PROTEIN]: 7e+1,
+          [COMMON_NAMES.FAT]: 1.4e+7,
+          [COMMON_NAMES.BONES]: 9.8e+6,
+          [COMMON_NAMES.BRAINS]: 1.3e+6,
         },
-        [COMMON_NAMES.GENES.NAME]: {
-          [COMMON_NAMES.FOOD.MISC.SENTIENTS.GENE]: 1,
+        [COMMON_NAMES.GENES]: {
+          [COMMON_NAMES.SENTIENTS_GENE]: 1,
         }
       },
     },
