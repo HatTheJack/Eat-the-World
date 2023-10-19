@@ -6,8 +6,8 @@
       <!-- Your hive content here -->
       <h4>{{ hive.biome }}</h4>
       <ul>
-      <li><span>Radius:</span> <span v-html="formatNumber(hive.radius, 'cm')"></span></li>
-      <li><span> {{ COMMON_NAMES.BIOMASS }}:</span><span v-html="formatNumber(hive[COMMON_NAMES.RESOURCES][COMMON_NAMES.BIOMASS].amount, 'mg')"></span> </li>
+      <li><span>Radius:</span> <span v-html="gameDataTweened.radius"></span></li>
+      <li><span> {{ formatPropertyName(COMMON_NAMES.BIOMASS) }}:</span><span v-html="gameDataTweened.resource.biomass"></span> </li>
       </ul>
       <!-- {{ formatNumber(hive.area, 'cm2') }} / {{ formatNumber(hive.maxArea, 'cm2') }} -->
       <bar :barNumbers="[hive.area, hive.areaUsed]" :max="hive.maxArea"/>
@@ -16,58 +16,25 @@
       <div class="hiveResources">
         <ul>
           <template v-for="(resource, key) in hive[COMMON_NAMES.RESOURCES]">
-            <li v-if="resource.show == true && key !== 'Biomass'">
-                <span>{{ key }}:</span><span v-html="formatNumber(resource.amount, 'mg')"></span>
+            <li v-if="resource.show == true && key !== 'biomass'">
+                <span>{{ formatPropertyName(key) }}:</span><span v-html="formatNumber(resource.amount, 'kg')"></span>
             </li>
           </template>
         </ul>
       </div>
     </div>
   </div>
-  <!-- <div id="hives">
-      <div class="hiveinfo" v-for="hive in gameData.hive">
-        <div class="expandable-div" :class="{ expanded: isExpanded }" @click="toggleExpansion">
-          <span>Biome: {{ hive.biome }}</span>
-          <span>Radius: {{ formatNumber(hive.radius, "cm") }}</span>
-          <span class="hivearea">Area:</span>
-          <bar :barNumbers="[60, 10]" :max="100"/>
-          <div class="hiveResources">
-              <div v-for="(resource, key) in hive[COMMON_NAMES.RESOURCES.NAME]">
-                <div v-if="resource.show == true">
-                    {{ key }}: {{ formatNumber(resource.amount, 'mg') }}
-                  </div>
-              </div>
-          </div>
-          <p>-</p>
-          <ul>
-            <template v-for="(category, key) in hive[COMMON_NAMES.FOOD.NAME]">
-              <li v-if="category.show === true">
-              {{ key }}
-                <ul>
-                  <template v-for="(resource, subKey) in category">
-                    <li v-if="resource.show === true">
-                      <span>{{ subKey }} :</span>
-                      <span>{{ formatNumber(resource.amount) }}</span> 
-                      <button @click="hiveManager.eatFood(hive, key, subKey)">Eat</button>
-                    </li>
-                  </template>
-                </ul>
-              </li>
-            </template>
-          </ul>
-        </div>
-      </div> 
-  </div> -->
 </template>
   
 <script setup>
   import { ref } from 'vue';
-  import { gameData } from '@/assets/js/gameData.js'
+  import { gameData, gameDataTweened } from '@/assets/js/gameData.js'
   import { COMMON_NAMES } from '@/assets/js/definitions.js'
-  import { formatNumber, hiveManager } from '@/assets/js/functions.js';
+  import { formatNumber, hiveManager, formatPropertyName } from '@/assets/js/functions.js';
   import bar from '@/components/subcomponents/bar.vue';
   import hiveTotals from '@/components/totals.vue';
   
+
   const activateHive = (clickedHive) => {
   gameData.value.hive.forEach((hive) => {
     hive.active = hive === clickedHive;

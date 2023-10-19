@@ -5,10 +5,10 @@ export const initHiveForest = ([
     id: 0,
     active: false,
     biome: "Forest",
-    radius: 10,
+    radius: 0.0001,
     radiusPerBeat: 1,
     areaUsed: 0,
-    area: 314.16,
+    area: 0.000000031416,
     previousArea: 0,
     maxArea: 10000000000000,
     heart: 
@@ -18,11 +18,11 @@ export const initHiveForest = ([
       }, 
     [COMMON_NAMES.RESOURCES]: {
       [COMMON_NAMES.BIOMASS]: {
-        amount: 10000000000,
+        amount: 0.0001 * 100000,
         show: true,
         lost: {
-          total: 10,
-          expansion: 10,
+          total: 0.0001,
+          expansion: 0.00001,
         }
       },
       [COMMON_NAMES.FIBRE]: {

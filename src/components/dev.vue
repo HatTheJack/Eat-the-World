@@ -5,6 +5,7 @@
             <h4>I am some debug info</h4>
             <div class="devContent">
                 <div class="buttons">
+                    <button @click="addBiomass()">Add biomass</button>
                     <button @click="mainLoop(true)">Tick</button>
                     <button @click="gameData.paused = !gameData.paused">{{ gameData.paused ? 'Resume' : 'Pause' }}</button>  
                     <button @click="gameData.heart.amount = gameData.heart.max">Max heart</button>
@@ -12,7 +13,8 @@
                     <button @click="gameData.hive[0].radiusPerBeat += 1000">Increase radius per beat 1000</button>
                     <button @click="gameData.hive[0].radiusPerBeat += 10000">Increase radius per beat 10000</button>
                     <button @click="gameData.hive[0].radiusPerBeat += 1000000000">Increase radius per beat 1000000000</button>
-                    <button @click="getMaxExpandPerTick(0)">Get Max Expand</button>"
+                    <button v-for="(func, funcName) in hiveManager" @click="callFunction(hiveManager, funcName, gameData)">Call {{ funcName }}</button>
+                    <button @click="loopMultiple(10000)">Loop Multiple</button>
                 </div>
                 <pre>{{ gameData }}</pre>
             </div>
@@ -26,8 +28,12 @@
 <script setup>
   import { ref } from 'vue';
   import { gameData } from '@/assets/js/gameData.js';
-  import { mainLoop, getMaxExpandPerTick } from '@/assets/js/functions.js';
+  import { mainLoop, hiveManager, callFunction, loopMultiple } from '@/assets/js/functions.js';
 
+
+  function addBiomass() {    
+    gameData.value.hive[0].resource.biomass.amount += 100;
+}
   const showDev = ref(false);
 </script>
   

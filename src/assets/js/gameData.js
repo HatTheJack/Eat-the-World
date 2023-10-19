@@ -1,4 +1,4 @@
-import { ref, computed } from "vue";
+import { ref, computed, reactive } from "vue";
 import { initHiveForest } from "@/assets/js/hives.js";
 import { researchData } from "@/assets/js/research.js";
 import { COMMON_NAMES } from "@/assets/js/definitions.js";
@@ -113,6 +113,12 @@ export const gameData = ref({
       [COMMON_NAMES.SENTIENTS]: 0,
     },
   },
+});
+
+export const gameDataTweened = reactive ({
+  resource: {
+    biomass: 0,
+  }
 });
 
 export const heartAmountPercent = computed(() => {

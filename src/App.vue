@@ -6,12 +6,12 @@ git commit -m "adding dist"
 git subtree push --prefix dist origin gh_pages 
 -->
 <script setup>
-import { defineSSRCustomElement, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { defineSSRCustomElement, ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 // import { initHiveForest } from '@/assets/js/hives.js'
 import { COMMON_NAMES } from '@/assets/js/definitions';
 import { gameData } from '@/assets/js/gameData.js'
 import { foodValues } from "@/assets/js/resources.js";
-import { mainLoop, calculateArea, formatNumber, hiveManager } from '@/assets/js/functions.js';
+import { mainLoop, calculateArea, formatNumber, hiveManager, startWorker, setupResourceWatchers } from '@/assets/js/functions.js';
 import { researchInfo } from '@/assets/js/research.js';
 import ChildComponent from './components/popups.vue';
 import devArea from '@/components/dev.vue';
@@ -22,41 +22,47 @@ import hiveTotals from '@/components/totals.vue';
 import tooltip from '@/components/tooltip.vue';
 import * as ADNotations from "@antimatter-dimensions/notations";
 import Decimal from "break_infinity.js";
+import { gameDataTweened } from './assets/js/gameData';
+import gsap from 'gsap';
+
 
 
 let mainGameLoop;
 const loopInterval = 1000;
 
+  // watch(() => gameData.value.hive[0].resource.biomass.amount, (n) => {
+  //       // const formattedBiomass = parseFloat(n).toFixed(2);
+  //       gsap.to(gameDataTweened.resource, { 
+  //         duration: 0.5, 
+  //         biomass: parseFloat(n) || 0,
+  //         onUpdate: () => {
+  //           gameDataTweened.resource.biomass = formatNumber(parseFloat(gameDataTweened.resource.biomass).toFixed(2), 'kg');
+  //         }
+  //       });
+  //       console.log("watcher")
+  // }); 
+
 onMounted(() => {
   // if (heartbeatElement.value) {
   //   heartbeatWidth.value = heartbeatElement.value.offsetWidth;
   // }
-  hiveManager.expandHive(0, 150000)
-  console.log(formatNumber(gameData.value.hive[0].radius)/100000);
   gameData.value.hive.find(item => item.id === 0).active = true;
-  mainGameLoop = setInterval(mainLoop, loopInterval); 
-  
-  const scientific = new ADNotations.ScientificNotation();// Execute mainLoop every 1000 milliseconds (1 second)
-  let x = new Decimal("1.5e53");
-  let y = new Decimal("1e8000000000000000");
-  let z = y.divide(x);
-  let formated = scientific.format(y, 2, 2);
-  console.log(formated);
-  // formated = scientific.format(y, 2, 2);
-  // console.log("mass of multiverse",formated,"kg");
-  // formated = scientific.format(z, 2, 2);
-  // console.log("total universes: ", formated);
-  
+  // mainGameLoop = setInterval(mainLoop, loopInterval);   
+  // startWorker('src/assets/js/loopworker.js');
+  setupResourceWatchers();
+  // console.log(gameData.value.hive[0].resource.biomass.amount);
+
 });
 
 
 </script>
 
 <template>
-  <div> </div>
+  <div></div>
   <main class="flexContainerVertical">
     <topbar />
-    <div class="flexContainerHorizontal flexChild95">      
+    <div class="flexContainerHorizontal flexChild95">  
+      <!-- {{ gameData.hive[0].resource.biomass.amount }} -->
       <div id="hiveView" class="flexChild40 flexChildVertical">
         <hiveInfo/>
       </div>

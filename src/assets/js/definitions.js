@@ -135,6 +135,3 @@ export const COMMON_NAMES = {
   FUNGI_GENE: "fungiGene",
   SENTIENTS_GENE: "sentientsGene",  
 }
-
-export const COMMON_NAMES_BUILDINGS = {  
-} 
